@@ -1,0 +1,127 @@
+#!/bin/bash
+# Markdown to Word Converter
+# Usage: md2doc <input.md> [output.docx] [options]
+
+set -e
+
+show_help() {
+    echo "Markdown to Word Converter"
+    echo ""
+    echo "Usage:"
+    echo "  md2doc input.md                    # Convert to input.docx"
+    echo "  md2doc input.md output.docx        # Specify output file"
+    echo "  md2doc input.md --toc              # Add table of contents"
+    echo "  md2doc input.md --template=tpl.docx # Use custom template"
+    echo ""
+    echo "Options:"
+    echo "  --toc                 Add table of contents"
+    echo "  --template=FILE       Use Word template file"
+    echo "  --title=TITLE         Set document title"
+    echo "  --author=AUTHOR       Set document author"
+    echo "  -h, --help            Show this help"
+    echo ""
+    echo "Examples:"
+    echo "  md2doc README.md"
+    echo "  md2doc report.md report-v1.docx --toc"
+    echo "  md2doc notes.md --title='Meeting Notes' --author='Team'"
+}
+
+# Check if pandoc is installed
+if ! command -v pandoc &> /dev/null; then
+    echo "❌ Error: pandoc is not installed"
+    echo "   Install with: yum install -y pandoc"
+    exit 1
+fi
+
+# Parse arguments
+INPUT=""
+OUTPUT=""
+TOC=""
+TEMPLATE=""
+TITLE=""
+AUTHOR=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        --toc)
+            TOC="--toc"
+            shift
+            ;;
+        --template=*)
+            TEMPLATE="--reference-doc=${1#*=}"
+            shift
+            ;;
+        --title=*)
+            TITLE="--metadata title=${1#*=}"
+            shift
+            ;;
+        --author=*)
+            AUTHOR="--metadata author=${1#*=}"
+            shift
+            ;;
+        *.md)
+            if [ -z "$INPUT" ]; then
+                INPUT="$1"
+            else
+                OUTPUT="$1"
+            fi
+            shift
+            ;;
+        *.docx)
+            OUTPUT="$1"
+            shift
+            ;;
+        *)
+            echo "❌ Unknown option: $1"
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
+# Validate input
+if [ -z "$INPUT" ]; then
+    echo "❌ Error: No input file specified"
+    show_help
+    exit 1
+fi
+
+if [ ! -f "$INPUT" ]; then
+    echo "❌ Error: Input file not found: $INPUT"
+    exit 1
+fi
+
+# Set default output if not specified
+if [ -z "$OUTPUT" ]; then
+    OUTPUT="${INPUT%.md}.docx"
+fi
+
+# Build pandoc command
+CMD="pandoc \"$INPUT\" -o \"$OUTPUT\""
+
+[ -n "$TOC" ] && CMD="$CMD $TOC"
+[ -n "$TEMPLATE" ] && CMD="$CMD $TEMPLATE"
+[ -n "$TITLE" ] && CMD="$CMD $TITLE"
+[ -n "$AUTHOR" ] && CMD="$CMD $AUTHOR"
+
+# Show info
+echo "📝 Converting: $INPUT → $OUTPUT"
+[ -n "$TOC" ] && echo "   With table of contents"
+[ -n "$TITLE" ] && echo "   Title: ${TITLE#*=}"
+[ -n "$AUTHOR" ] && echo "   Author: ${AUTHOR#*=}"
+
+# Execute
+eval $CMD
+
+# Check result
+if [ -f "$OUTPUT" ]; then
+    SIZE=$(ls -lh "$OUTPUT" | awk '{print $5}')
+    echo "✅ Success! Output: $OUTPUT ($SIZE)"
+else
+    echo "❌ Conversion failed"
+    exit 1
+fi

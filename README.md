@@ -25,6 +25,9 @@
 │   ├── humanoid_robot_factory_solution.md    # 人形机器人技术方案（主文档）
 │   ├── chrome_installation_guide.md          # Chrome 浏览器安装指南
 │   └── chrome_xvfb_guide.md                  # Xvfb 虚拟显示配置指南
+├── documents/                                # Word 文档输出
+│   ├── 人形机器人技术方案.docx               # 技术方案 Word 版
+│   └── chrome_guide.docx                     # Chrome 指南 Word 版
 ├── demos/
 │   ├── demo_screenshot.png                   # 高级演示截图
 │   ├── demo_headless.png                     # 无头模式截图
@@ -32,6 +35,11 @@
 ├── scripts/
 │   ├── demo_selenium.py                      # Selenium 基础演示脚本
 │   └── demo_advanced.py                      # 高级自动化演示脚本
+├── skills/                                   # OpenClaw Skills
+│   ├── jina-reader/                          # 网页内容提取
+│   ├── web-search/                           # 网络搜索
+│   ├── brave-search/                         # Brave 搜索
+│   └── md2doc/                               # Markdown 转 Word
 └── README.md                                 # 本文件
 ```
 
@@ -106,9 +114,32 @@ driver.quit()
 
 ---
 
+## 📝 Markdown to Word
+
+Convert markdown files to Word documents using `md2doc`:
+
+```bash
+# Basic conversion
+md2doc input.md
+
+# With table of contents
+md2doc input.md --toc
+
+# With custom metadata
+md2doc input.md --title="Title" --author="Author"
+
+# Batch convert all markdown files
+for file in *.md; do md2doc "$file"; done
+```
+
+Pre-converted documents are available in `documents/` directory.
+
+---
+
 ## 📅 更新日志
 
 - **2026-03-12**: 初始版本，包含完整技术方案和 Chrome 配置指南
+- **2026-03-12**: 添加 Markdown 转 Word 工具 (md2doc)
 
 ---
 
