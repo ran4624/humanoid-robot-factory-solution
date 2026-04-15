@@ -35,7 +35,7 @@ High-quality web search using Brave Search API.
 ### Command Line
 
 ```bash
-# Basic search
+# Basic search (自动选择最佳搜索源)
 brave-search "Python programming"
 
 # Limit results
@@ -43,6 +43,21 @@ brave-search "machine learning" --count 3
 
 # JSON output
 brave-search "AI news" --json
+
+# Time filter
+brave-search "latest news" --freshness day
+```
+
+### 多源搜索 (当Brave API限制时自动切换)
+
+当Brave Search API超出使用限制时，工具会自动切换到备用搜索源：
+1. **Brave Search** (首选) - 高质量结果
+2. **DuckDuckGo** (备用) - 隐私保护
+3. **其他源** (扩展) - 可配置
+
+```bash
+# 智能搜索 - 自动处理API限制
+smart-search "fund analysis" --count 5 --freshness week
 ```
 
 ### Python
@@ -100,10 +115,35 @@ def search(query, count=5):
 
 ---
 
-## Rate Limits
+## Rate Limits & Fallback
 
+### Brave Search API
 - **Free tier**: 2,000 queries/month
 - **Paid tier**: Starting at $3 per 1,000 queries
+
+### 自动故障转移 (Auto Fallback)
+
+当Brave API达到使用限制时，系统会自动：
+
+1. **检测错误** - 识别 `USAGE_LIMIT_EXCEEDED` 错误
+2. **切换源** - 自动切换到DuckDuckGo等备用搜索源
+3. **继续服务** - 保证搜索功能可用
+
+```python
+# 示例：API限制时的自动切换
+searcher = SmartSearch()
+result = searcher.search("query")
+# 如果Brave失败，自动使用DuckDuckGo
+print(f"使用搜索源: {result['source']}")  # "DuckDuckGo"
+```
+
+### 备用搜索源
+
+| 优先级 | 搜索源 | 类型 | 特点 |
+|:---:|:---|:---|:---|
+| 1 | Brave Search | API | 高质量，隐私保护 |
+| 2 | DuckDuckGo | 网页 | 无API限制，隐私 |
+| 3 | Google (SerpAPI) | API | 需要配置API key |
 
 ---
 

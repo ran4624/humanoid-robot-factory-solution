@@ -1,0 +1,1533 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-14T14:00:22.298Z",
+  "entries": {
+    "memory:memory/2026-03-25.md:87:124": {
+      "key": "memory:memory/2026-03-25.md:87:124",
+      "path": "memory/2026-03-25.md",
+      "startLine": 87,
+      "endLine": 124,
+      "source": "memory",
+      "snippet": "|---------|---------|------|---------------------| | VLM+VLA | RT-2, OpenVLA | 判别式模型，难以建模物理连续性 | 使用生成式视频模型作为先验 | | 联合建模WAM | Motus, VideoVLA | 需要迭代采样视频，延迟高 | 视频生成为可选，推理更快 | | 两阶段WAM | Mimic-video | 先生成视频再逆推动作，累积误差 | 端到端训练，联合优化 | ### 5. 实际应用问题 **优势**: - ✅ 低延迟推理适合实时控制 - ✅ 密集的视觉监督信号提升学习效率 - ✅ 可解释性强(可选的视频预测可验证动作合理性) **挑战**: - ⚠️ 10,000小时预训练数据需求量大 - ⚠️ 5B参数模型对计算资源要求高 - ⚠️ 稀疏帧预测(Δ步长)可能丢失快速动态 - ⚠️ 多视角拼接可能引入几何失真 --- ## 🔬 论文2深度分析: DAM-VLA ### 1. 算法实现细节 **整体架构**: 三大核心组件 1. **Vision-Language Model** - 视觉编码器: DINOv2 + SigLIP - 输出: visual tokens(f_vis), class token(f_cls), register token(f_reg) - 语言模型: LLaMA-2 - 输出: cognition latent(f_cog), reasoning latent(f_rea) 2. **Action Routing",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.8469927261614332,
+      "maxScore": 0.8469927261614332,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-07T03:09:34.553Z",
+      "queryHashes": [
+        "34ae773d1c1f"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "rt-2",
+        "mimic-video",
+        "dam-vla",
+        "vision-language",
+        "f-vis",
+        "f-cls",
+        "f-reg",
+        "llama-2"
+      ]
+    },
+    "memory:memory/2026-03-19.md:244:290": {
+      "key": "memory:memory/2026-03-19.md:244:290",
+      "path": "memory/2026-03-19.md",
+      "startLine": 244,
+      "endLine": 290,
+      "source": "memory",
+      "snippet": "- **KL Balancing**: 动态平衡encoder和dynamics的KL损失 **鲁棒性设计**: - 1% Unimix: 混合均匀分布防止零概率 - Symexp Two-hot: 用于奖励和价值的连续值预测 - 自适应梯度裁剪 - RMSProp + Momentum (LaProp) ### 2. 实验结果与关键指标 **跨域性能** (固定超参数): - **测试规模**: 150+ 任务，8个领域 - **领域覆盖**: - Atari (57 games) - ProcGen (16 games) - DMLab (30 tasks) - Control Suite (20 tasks) - Minecraft **关键结果**: - **Atari**: 超越MuZero、Rainbow、IQN - **ProcGen**: 超越PPG、Rainbow - **DMLab**: 用1/10数据超越IMPALA、R2D2+ - **Atari100k**: 超越IRIS、TWM、SimPLe、SPR - **控制任务**: 匹配DMPO、TD-MPC2 **Minecraft里程碑**: - **首个从零开始收集钻石的算法**（无需人类数据或课程学习） - 完成12个里程碑任务链 - 使用1个GPU训练9天 - 对比: VPT需要720个GPU × 9天且需要人类数据 **Scaling特性**: - 模型大小: 12M ~ 400M参数 - 大模型 = 更高性能 + 更少交互 - 重放比例增加 → 数据效率提升 #",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.8039590500534433,
+      "maxScore": 0.8039590500534433,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-07T03:09:34.553Z",
+      "queryHashes": [
+        "34ae773d1c1f"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "two-hot",
+        "用1/10数据超越impala",
+        "td-mpc2",
+        "balancing",
+        "动态",
+        "平衡",
+        "encoder",
+        "dynamics"
+      ]
+    },
+    "memory:memory/2026-03-13.md:141:191": {
+      "key": "memory:memory/2026-03-13.md:141:191",
+      "path": "memory/2026-03-13.md",
+      "startLine": 141,
+      "endLine": 191,
+      "source": "memory",
+      "snippet": "- **实时性**: 需要量化/蒸馏等技术优化 - **数据依赖**: 仍需要一定量的机器人演示数据 - **安全性**: 端到端模型的安全保证更难 #### 2. 工程实践建议 - 使用模型量化或蒸馏减少推理延迟 - 结合仿真数据进行预训练 - 考虑分层安全监控机制 #### 3. 未来方向 - 结合世界模型进行预测性规划 - 多机器人数据联合训练 - 与LLM结合进行更复杂任务分解 --- ### 六、关键代码实现要点 ```python # 核心思想伪代码 class RT2Policy: def __init__(self, vlm_backbone): self.vlm = vlm_backbone # PaLI-X or PaLM-E def discretize_action(self, action_continuous): # 6-DoF + gripper → 8 integers bins = 256 action_discrete = [] for val in action_continuous: action_discrete.append(int((val - min) / (max - min) * bins)) return action_discrete def predict(self, image, instruction): # 构建pro",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7942603462763267,
+      "maxScore": 0.7942603462763267,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-07T03:09:34.553Z",
+      "queryHashes": [
+        "34ae773d1c1f"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "需要量化/蒸馏等技术优化",
+        "vlm-backbone",
+        "self.vlm",
+        "pali-x",
+        "palm-e",
+        "discretize-action",
+        "action-continuous",
+        "6-dof"
+      ]
+    },
+    "memory:memory/2026-03-27.md:202:242": {
+      "key": "memory:memory/2026-03-27.md:202:242",
+      "path": "memory/2026-03-27.md",
+      "startLine": 202,
+      "endLine": 242,
+      "source": "memory",
+      "snippet": "- 随机表示z_t (捕捉不确定性) - 确定性循环状态h_t (捕捉时序依赖) **Critic (价值网络)**: - 预测每个状态的期望回报 - 使用分布预测而非单值预测 - 支持多模态回报分布 **Actor (策略网络)**: - 选择动作以最大化期望回报 - 直接从世界模型想象的轨迹学习 2. **鲁棒性技术** (关键创新): | 技术 | 作用 | |------|------| | **Symlog变换** | 处理大幅值输入，稳定梯度 | | **Free Bits** | KL散度裁剪，防止表示坍缩 | | **归一化** | 跨域稳定学习 | | **损失平衡** | 自动平衡各损失项权重 | 3. **训练过程**: - 从回放缓冲区采样序列 - 世界模型预测未来轨迹 - Actor和Critic在**想象**的轨迹上训练 - 无需真实环境交互即可策略改进 **实验结果与关键指标** - **跨域表现**: 在**150+任务**上超越专用算法 - **固定超参数**: 单一配置适用于所有领域 - **Minecraft钻石**: - 首个从零开始收集钻石的算法 - 无需人类数据或课程学习 - **扩展性**: 更大模型 = 更高性能 + 更少交互 **领域覆盖**: - 机器人 locomotion - 机器人 manipulation - Atari游戏 - ProcGen程序生成关卡",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7727150048320968,
+      "maxScore": 0.7727150048320968,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-07T03:09:34.553Z",
+      "queryHashes": [
+        "34ae773d1c1f"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "网络",
+        "随机表示z-t",
+        "确定性循环状态h-t",
+        "随机",
+        "表示",
+        "z-t",
+        "捕捉",
+        "确定"
+      ]
+    },
+    "memory:memory/2026-03-19.md:281:332": {
+      "key": "memory:memory/2026-03-19.md:281:332",
+      "path": "memory/2026-03-19.md",
+      "startLine": 281,
+      "endLine": 332,
+      "source": "memory",
+      "snippet": "### 3. 创新点 1. **首个通用RL算法** - 固定超参数跨150+任务 - 终结了每个域需要专门调参的历史 2. **世界模型的鲁棒学习** - 一系列归一化和平衡技术 - 解决了世界模型训练的稳定性问题 3. **Minecraft钻石挑战** - 解决了AI领域的长期挑战 - 证明了世界模型在稀疏奖励、长时程任务中的优势 4. **从零开始的学习** - 不依赖人类演示数据 - 纯强化学习自主探索 ### 4. 与其他方法对比 **vs PPO**: - Dreamer在所有领域都优于PPO - PPO需要大量经验且经常低于专门算法 **vs MuZero**: - Dreamer更通用，计算资源需求更低 - MuZero只针对离散动作 **vs VPT (Minecraft)**: - Dreamer: 1 GPU, 无人类数据 - VPT: 720 GPUs, 需要人类游戏数据 **vs Gato**: - Dreamer能自主学习改进 - Gato只是模仿专家，无法提升 ### 5. 实际应用问题 **优势**: - ✅ 真正的通用算法，开箱即用 - ✅ 极高的样本效率（比传统RL高10-100倍） - ✅ 可预测的scaling特性 - ✅ 适用于连续/离散动作、视觉/向量输入 **限制**: - ❌ 模型预测存在误差累积 - ❌ 非常长的时程规划仍具挑战 - ⚠️ 需要足够的计算资源进行想象训练 - ⚠️ 模型训练时间较长 ---",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.5078571891923955,
+      "maxScore": 0.7689992001273236,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "34ae773d1c1f",
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "比传统rl高10-100倍",
+        "适用于连续/离散动作",
+        "视觉/向量输入",
+        "创新",
+        "通用",
+        "算法",
+        "固定",
+        "参数"
+      ]
+    },
+    "memory:memory/2026-04-01.md:158:193": {
+      "key": "memory:memory/2026-04-01.md:158:193",
+      "path": "memory/2026-04-01.md",
+      "startLine": 158,
+      "endLine": 193,
+      "source": "memory",
+      "snippet": "- 负样本构造: 拒绝无关prompt，检测退化或停滞 **异步真实世界RL循环**: ``` 离线演示回放 → Return and Explore → Human Guided Explore ↓ ↓ ↓ 利用专家数据 自主探索 人类干预 稳定早期学习 发现新策略 纠正错误 ``` ### 2.3 实验结果与关键指标 **训练设置**: - 基础模型: InternVL-2.5-8B - 训练数据: 大规模异构数据集 - 真实机器人: 4种不同操作任务 **性能表现**: | 任务 | 初始成功率 | VLAC (200 episodes) | 人类介入后 | |------|-----------|---------------------|-----------| | 拾取放置 | 30% | 90% | 100% | | 抽屉打开 | 25% | 88% | 98% | | 按钮按压 | 35% | 92% | 100% | | 物体堆叠 | 20% | 85% | 95% | **关键提升**: - 相比稀疏奖励RL: 样本效率提升 **5-10倍** - 人类介入后: 额外 **50%** 样本效率提升 - 零样本迁移: 可迁移到未见任务和环境 ### 2.4 创新点 1. **统一VLA-Critic架构**: 首个将策略和评价统一在一个VLA模型中的工作 2. **密集过程奖励**: 无需任务特定的",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7571658446619101,
+      "maxScore": 0.7571658446619101,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-07T03:09:34.553Z",
+      "queryHashes": [
+        "34ae773d1c1f"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "2.3",
+        "internvl-2.5-8b",
+        "5-10倍",
+        "2.4",
+        "统一vla-critic架构",
+        "样本",
+        "构造",
+        "拒绝"
+      ]
+    },
+    "memory:memory/2026-03-29.md:228:265": {
+      "key": "memory:memory/2026-03-29.md:228:265",
+      "path": "memory/2026-03-29.md",
+      "startLine": 228,
+      "endLine": 265,
+      "source": "memory",
+      "snippet": "3. **Genie 3** (DeepMind, 2025): - 交互式世界模型 - 从单张图像生成交互式环境 - 支持多种控制输入 --- ## 四、学习总结与明日计划 ### 今日收获 1. **CoT-VLA理解**: - 视觉思维链是提升长程任务性能的有效方法 - 显式子目标生成提高可解释性和失败恢复能力 - 模块化设计便于独立优化 2. **V-JEPA 2理解**: - 表示空间预测是视频理解的重要范式 - 自监督预训练可大幅降低标注成本 - 高质量视觉表示对VLA至关重要 3. **领域趋势**: - VLA从端到端向分层规划演进 - 世界模型从控制扩展到表示学习 - 两者结合是重要研究方向 ### 关键技术对比总结 | 技术方向 | 代表工作 | 核心思想 | 适用场景 | |---------|---------|---------|---------| | 端到端VLA | OpenVLA, π₀ | 直接映射视觉+语言→动作 | 简单任务，快速响应 | | 思维链VLA | CoT-VLA | 生成子目标→执行 | 长程任务，需要推理 | | 世界模型 | DreamerV3 | 学习环境动力学 | 样本高效学习 | | 视频表示 | V-JEPA 2 | 表示空间视频预测 | 预训练，迁移学习 | | Flow Matching | π₀ | 连续动作生成 | 高灵巧度操作 | ### 明日学习计划 (第18天)",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.5002216659177567,
+      "maxScore": 0.7560494819692012,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "34ae773d1c1f",
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "cot-vla理解",
+        "v-jepa",
+        "cot-vla",
+        "genie",
+        "deepmind",
+        "交互",
+        "世界",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-03-29.md:188:240": {
+      "key": "memory:memory/2026-03-29.md:188:240",
+      "path": "memory/2026-03-29.md",
+      "startLine": 188,
+      "endLine": 240,
+      "source": "memory",
+      "snippet": "- ✅ 与VLA结合可提升视觉理解能力 **挑战**: - ⚠️ 表示空间缺乏直观可解释性 - ⚠️ 需要大量未标注视频数据 - ⚠️ 预训练计算资源需求大 - ⚠️ 与具体机器人任务的适配需要研究 --- ## 三、VLA + 世界模型结合的前沿方向 ### 3.1 CoT-VLA + V-JEPA 2 结合思路 **潜在结合方式**: ``` V-JEPA 2预训练 → 提供高质量视觉表示 ↓ CoT-VLA使用V-JEPA表示 → 生成子目标 ↓ VLA策略 → 执行动作 ``` **预期优势**: 1. V-JEPA的高质量表示提升子目标生成质量 2. 自监督预训练降低对标注数据的需求 3. 表示空间预测与视觉CoT天然契合 ### 3.2 当前研究热点 1. **Helix架构** (Figure AI): - System 1: VLA快速反应 (类似人脑反射) - System 2: 世界模型慢速规划 (类似人脑思考) - 两者协同工作 2. **Cosmos平台** (NVIDIA, 2025): - 物理AI世界基础模型 - 提供物理对齐的评估指标 - 支持多种仿真环境 3. **Genie 3** (DeepMind, 2025): - 交互式世界模型 - 从单张图像生成交互式环境 - 支持多种控制输入 --- ## 四、学习总结与明日计划 ### 今日收获 1. **CoT-VLA理解**: - 视觉思维链是提升长程任务性能的有效方法",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7494575927910454,
+      "maxScore": 0.7494575927910454,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-07T03:09:34.553Z",
+      "queryHashes": [
+        "34ae773d1c1f"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "3.1",
+        "cot-vla",
+        "v-jepa",
+        "cot-vla使用v-jepa表示",
+        "v-jepa的高质量表示提升子目标生成质量",
+        "3.2",
+        "cot-vla理解",
+        "vla"
+      ]
+    },
+    "memory:memory/2026-04-01.md:245:299": {
+      "key": "memory:memory/2026-04-01.md:245:299",
+      "path": "memory/2026-04-01.md",
+      "startLine": 245,
+      "endLine": 299,
+      "source": "memory",
+      "snippet": "| 安全性 | 高(无真实交互) | 需要安全机制 | ### 3.3 潜在结合方向 **World4RL + VLAC 融合思路**: ``` VLAC提供密集奖励估计 ↓ World4RL的扩散世界模型生成虚拟轨迹 ↓ 在虚拟轨迹上使用VLAC的密集奖励进行策略优化 ↓ 部署到真实机器人 ``` **预期优势**: 1. VLAC的密集奖励解决World4RL的奖励稀疏问题 2. World4RL的想象环境减少VLAC的真实世界交互 3. 两者结合可实现高效、安全、可解释的策略学习 --- ## 四、领域趋势总结 ### 4.1 当前研究热点 1. **World Model + RL 深度融合**: - 从规划工具到端到端优化 - 扩散模型提升视觉保真度 - 样本效率持续提高 2. **VLA模型向RL扩展**: - 从模仿学习到强化学习 - 统一架构简化系统设计 - 密集奖励替代稀疏奖励 3. **人类介入协议标准化**: - 渐进式介入策略 - 人机协作的效率优化 - 安全性和可解释性保障 ### 4.2 关键技术演进 ``` 2024: VLA基础架构 (OpenVLA, π₀) ↓ 2025 Q1: 世界模型预训练 (V-JEPA 2, Cosmos) ↓ 2025 Q2: VLA + World Model结合 (CoT-VLA, Helix) ↓ 2025 Q3: 强化学习优化 (World4RL, VLAC)",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.318045864714676,
+      "maxScore": 0.7457421522090065,
+      "firstRecalledAt": "2026-04-07T03:09:34.553Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "34ae773d1c1f",
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "3.3",
+        "4.1",
+        "4.2",
+        "v-jepa",
+        "cot-vla",
+        "安全",
+        "真实",
+        "交互"
+      ]
+    },
+    "memory:memory/2026-04-01.md:123:167": {
+      "key": "memory:memory/2026-04-01.md:123:167",
+      "path": "memory/2026-04-01.md",
+      "startLine": 123,
+      "endLine": 167,
+      "source": "memory",
+      "snippet": "- **核心思想**: 统一VLA策略和评价模型，通过密集过程奖励解决真实世界RL的稀疏奖励和探索低效问题 ### 2.2 算法实现细节 **整体架构**: ``` 输入: 当前观测图像 I_t + 语言指令 L ↓ VLAC模型 (基于InternVL) ↓ 交替生成: - 动作token (Action Head) - 奖励token (Reward Head) ↓ 输出: 动作 a_t + 进度估计 δ_t + 完成信号 done_t ``` **三大核心设计**: 1. **统一模型架构**: - 基于InternVL-2.5 (多模态大模型) - 共享视觉-语言编码器 - 分离的动作头和评价头 - 通过prompt控制切换模式 2. **密集过程奖励**: ``` 传统RL: r_t = 1 (成功) / 0 (失败) 仅在任务结束时 VLAC: δ_t = progress_delta(I_t, I_{t+1}, L) ∈ [0,1] 每一步 done_t = 是否完成任务 (二分类) ``` 3. **训练数据构成**: - 视觉-语言数据集: 增强感知、对话和推理能力 - 机器人轨迹数据: 动作生成和进度估计 - 负样本构造: 拒绝无关prompt，检测退化或停滞 **异步真实世界RL循环**: ``` 离线演示回放 → Return and Explore → Human Guided Explore ↓",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.8108161334666575,
+      "maxScore": 0.8108161334666575,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-07T14:00:20.489Z",
+      "queryHashes": [
+        "e6b90a192c32"
+      ],
+      "recallDays": [
+        "2026-04-07"
+      ],
+      "conceptTags": [
+        "2.2",
+        "i-t",
+        "a-t",
+        "δ-t",
+        "done-t",
+        "基于internvl-2.5",
+        "共享视觉-语言编码器",
+        "r-t"
+      ]
+    },
+    "memory:memory/2026-04-03.md:170:215": {
+      "key": "memory:memory/2026-04-03.md:170:215",
+      "path": "memory/2026-04-03.md",
+      "startLine": 170,
+      "endLine": 215,
+      "source": "memory",
+      "snippet": "- 视频预测: p(x_{t+1:t+k} | x_{1:t}, c) - 条件c可以是: 文本、动作、参考图像 - 使用因果掩码确保时间一致性 ``` **Tokenizer设计**: - 基于3D CNN的编码器-解码器架构 - 时间维度因果卷积 - 空间-时间联合压缩 - 重建损失: L1 + LPIPS + GAN **物理对齐技术**: - 物理一致性损失函数 - 物体 permanence约束 - 刚体动力学先验 - 重力、碰撞等物理规则 ### 2.4 实验结果与关键指标 **视频预测质量**: | 模型 | FVD↓ | PSNR↑ | 物理一致性↑ | |------|------|-------|------------| | VideoLDM | 89.2 | 24.5 | 0.62 | | Sora | 45.3 | 28.7 | 0.75 | | **Cosmos-1.0** | **42.1** | **29.3** | **0.81** | **下游任务迁移**: - 机器人操作: 预训练后仅需10%数据达到SOTA - 自动驾驶: 端到端驾驶性能提升15% - 视频理解: 零样本视频问答准确率提升20% **推理效率**: - 8x A100: 生成1秒视频(30fps)仅需0.5秒 - 支持实时交互式生成 ### 2.5 创新点 1. **物理AI专用设计**: 针对物理世界交互优化 2. **统一平台**: 提供tokenizer、模型、评估工具链 3. **开源生态**: 模型权重、代码、数据集开源 4. **可扩展性**",
+      "recallCount": 4,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 3.052086111057168,
+      "maxScore": 0.7816626312385814,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "e6b90a192c32",
+        "48fbdacecfd6",
+        "ad760d9f371b",
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-08",
+        "2026-04-10",
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "cnn的编码器-解码器架构",
+        "空间-时间联合压缩",
+        "2.4",
+        "89.2",
+        "24.5",
+        "0.62",
+        "45.3",
+        "28.7"
+      ]
+    },
+    "memory:memory/2026-03-19.md:1:40": {
+      "key": "memory:memory/2026-03-19.md:1:40",
+      "path": "memory/2026-03-19.md",
+      "startLine": 1,
+      "endLine": 40,
+      "source": "memory",
+      "snippet": "# VLA & 世界模型学习日志 - Day 1 **日期**: 2026-03-19 **学习时间**: 晚上10点 **计划**: 4周速成 --- ## 今日学习概览 今天完成了对VLA（Vision-Language-Action）领域两篇最核心论文的深度分析： 1. **OpenVLA** (Stanford, 2024) - 开源VLA模型 2. **RT-2** (Google DeepMind, 2023) - 首个大规模VLA模型 同时学习了世界模型代表工作 **DreamerV3** (Danijar Hafner, 2023)。 --- ## 📄 论文一：OpenVLA ### 基本信息 - **论文**: OpenVLA: An Open-Source Vision-Language-Action Model - **作者**: Moo Jin Kim, Karl Pertsch, Siddharth Karamcheti 等 (Stanford, UC Berkeley, TRI, Google DeepMind) - **发表**: arXiv 2024.06, 后发表于 CoRL 2024 - **代码**: https://github.com/openvla/openvla ### 1. 算法实现细节 **架构设计**: - **参数量**: 7B（对比RT-2-X的55B，参数少7倍） - **视觉编码器**: 双塔融合架构 - **DINOv2**: 提供语义理解能力 - **SigLIP**: 提供对比",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.5602353299976557,
+      "maxScore": 0.7801176649988278,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.791Z",
+      "queryHashes": [
+        "e6b90a192c32",
+        "48fbdacecfd6"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "vision-language-action",
+        "rt-2",
+        "open-source",
+        "2024.06",
+        "github.com/openvla/openvla",
+        "对比rt-2-x的55b",
+        "vla",
+        "世界"
+      ]
+    },
+    "memory:memory/2026-03-29.md:259:291": {
+      "key": "memory:memory/2026-03-29.md:259:291",
+      "path": "memory/2026-03-29.md",
+      "startLine": 259,
+      "endLine": 291,
+      "source": "memory",
+      "snippet": "| 思维链VLA | CoT-VLA | 生成子目标→执行 | 长程任务，需要推理 | | 世界模型 | DreamerV3 | 学习环境动力学 | 样本高效学习 | | 视频表示 | V-JEPA 2 | 表示空间视频预测 | 预训练，迁移学习 | | Flow Matching | π₀ | 连续动作生成 | 高灵巧度操作 | ### 明日学习计划 (第18天) 1. **UniPi论文**: Learning Universal Policies via Text-Guided Video Generation - VLA与视频生成的结合 - 文本引导的策略学习 2. **RoboDreamer论文**: Learning Compositional World Models for Robot Manipulation - 组合式世界模型 - 物体-centric表示 3. **代码实践**: - 探索OpenVLA的CoT扩展可能性 - 了解V-JEPA 2的开源代码结构 --- ## 参考资源 - CoT-VLA: https://arxiv.org/abs/2503.xxxxx (CVPR 2025) - V-JEPA 2: https://ai.meta.com/blog/v-jepa-2/ - Helix: https://www.figure.ai/news/helix - Cosmos: https://developer.nvidia.com/cosmos --- *报告生成时间: 2026-03-2",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.4296805073296892,
+      "maxScore": 0.7476683228627824,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-10T07:42:02.600Z",
+      "queryHashes": [
+        "e6b90a192c32",
+        "c2421a804969"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "cot-vla",
+        "v-jepa",
+        "text-guided",
+        "物体-centric表示",
+        "了解v-jepa",
+        "arxiv.org/abs/2503.xxxxx",
+        "ai.meta.com/blog/v-jepa-2",
+        "www.figure.ai/news/helix"
+      ]
+    },
+    "memory:memory/2026-03-19.md:64:95": {
+      "key": "memory:memory/2026-03-19.md:64:95",
+      "path": "memory/2026-03-19.md",
+      "startLine": 64,
+      "endLine": 95,
+      "source": "memory",
+      "snippet": "1. **首个真正开源的大规模VLA模型** - 提供完整checkpoint、训练代码、微调notebook - 可在HuggingFace直接下载使用 2. **双塔视觉编码器设计** - DINOv2 + SigLIP融合，兼顾语义和对比学习 - 比单一视觉编码器有更好的表征能力 3. **参数高效微调探索** - 系统研究了VLA的fine-tuning方法 - LoRA在性能和内存间取得最佳平衡 ### 4. 与其他方法对比 | 模型 | 参数量 | 开源 | 数据来源 | 特点 | |------|--------|------|----------|------| | **OpenVLA** | 7B | ✅ | Open X-Embodiment | 开源、高效、可微调 | | **RT-2-X** | 55B | ❌ | 内部数据+Web | 闭源、语义理解更强 | | **RT-1** | 35M | ❌ | 内部数据 | 首个展示泛化的机器人Transformer | | **Octo** | 93M | ✅ | Open X-Embodiment | 更小、更快但性能较低 | | **Diffusion Policy** | ~10M | ✅ | 任务特定 | 单任务性能强但缺乏泛化 | ### 5. 实际应用问题 **优势场景**: - ✅ 多任务、多物体环境下的语言理解 - ✅ 需要快速适配到新机器人平台的场景 - ✅ 资源受限但需VLA能力的应用 **局限性**: - ❌ 纯语义泛化（如识别Tayl",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.494865336503904,
+      "maxScore": 0.747432668251952,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.791Z",
+      "queryHashes": [
+        "e6b90a192c32",
+        "48fbdacecfd6"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "系统研究了vla的fine-tuning方法",
+        "x-embodiment",
+        "rt-2-x",
+        "rt-1",
+        "真正",
+        "大规模",
+        "vla",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-04-03.md:245:289": {
+      "key": "memory:memory/2026-04-03.md:245:289",
+      "path": "memory/2026-04-03.md",
+      "startLine": 245,
+      "endLine": 289,
+      "source": "memory",
+      "snippet": "多视角观测 → 3D Gaussian表示 → 动态预测 → 渲染预测 (显式表示) (Transformer) (可微渲染) Cosmos路线: 视频输入 → Tokenizer压缩 → World Foundation Model → 视频生成 (连续/离散) (扩散/自回归) ``` ### 3.2 核心差异 | 维度 | GWM | Cosmos | |------|-----|--------| | 表示方式 | 显式3D高斯 | 隐式神经表示 | | 输入要求 | 需要多视角 | 单目视频即可 | | 可编辑性 | 高(显式表示) | 低(隐式表示) | | 预训练 | 任务特定训练 | 大规模预训练 | | 开源程度 | 代码开源 | 模型+代码开源 | ### 3.3 潜在结合方向 **GWM + Cosmos 融合思路**: ``` Cosmos提供高质量视频预训练表示 ↓ GWM利用预训练表示初始化3D高斯 ↓ 结合显式表示的可编辑性和隐式表示的泛化性 ↓ 用于机器人操作任务 ``` **预期优势**: 1. Cosmos的预训练知识加速GWM收敛 2. GWM的显式表示提供可解释性和编辑能力 3. 两者结合可实现高质量、高效率、可编辑的世界模型 --- ## 四、领域趋势总结 ### 4.1 当前研究热点 1. **显式 vs 隐式表示**: - 3D Gaussian (显式): 可编辑、渲染快 - 神经隐式 (隐式)",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.4874355750163228,
+      "maxScore": 0.7437177875081614,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.791Z",
+      "queryHashes": [
+        "e6b90a192c32",
+        "48fbdacecfd6"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "连续/离散",
+        "扩散/自回归",
+        "3.2",
+        "3.3",
+        "4.1",
+        "视角",
+        "观测",
+        "gaussian"
+      ]
+    },
+    "memory:memory/2026-04-03.md:208:254": {
+      "key": "memory:memory/2026-04-03.md:208:254",
+      "path": "memory/2026-04-03.md",
+      "startLine": 208,
+      "endLine": 254,
+      "source": "memory",
+      "snippet": "1. **物理AI专用设计**: 针对物理世界交互优化 2. **统一平台**: 提供tokenizer、模型、评估工具链 3. **开源生态**: 模型权重、代码、数据集开源 4. **可扩展性**: 支持从7B到更大规模的模型 ### 2.6 与其他方法对比 | 特性 | Cosmos | Sora | Genie 3 | V-JEPA 2 | |------|--------|------|---------|----------| | 开源 | ✅ | ❌ | 部分 | 部分 | | 物理对齐 | 强 | 中 | 强 | 中 | | 实时性 | ✅ | ❌ | ✅ | ✅ | | 机器人专用 | ✅ | ❌ | ✅ | ✅ | | Tokenizer | 提供 | 不提供 | 不提供 | 不提供 | ### 2.7 实际应用问题 **优势**: - ✅ 完整的物理AI开发生态 - ✅ 预训练模型质量高，迁移效果好 - ✅ 推理效率高，支持实时应用 - ✅ 物理对齐设计，生成内容更合理 **挑战**: - ⚠️ 需要NVIDIA GPU进行高效推理 - ⚠️ 预训练数据可能存在偏差 - ⚠️ 复杂物理现象建模仍有局限 - ⚠️ 安全过滤可能过度保守 --- ## 三、两篇论文/平台的关联与启示 ### 3.1 技术路线对比 ``` GWM路线: 多视角观测 → 3D Gaussian表示 → 动态预测 → 渲染预测 (显式表示) (Transformer) (可微渲染) Cosmos路线: 视频输入 → Tokenizer压缩 →",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.4727954351509338,
+      "maxScore": 0.7363977175754669,
+      "firstRecalledAt": "2026-04-07T14:00:20.489Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.791Z",
+      "queryHashes": [
+        "e6b90a192c32",
+        "48fbdacecfd6"
+      ],
+      "recallDays": [
+        "2026-04-07",
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "2.6",
+        "v-jepa",
+        "2.7",
+        "两篇论文/平台的关联与启示",
+        "3.1",
+        "物理",
+        "专用",
+        "设计"
+      ]
+    },
+    "memory:memory/2026-03-19.md:350:396": {
+      "key": "memory:memory/2026-03-19.md:350:396",
+      "path": "memory/2026-03-19.md",
+      "startLine": 350,
+      "endLine": 396,
+      "source": "memory",
+      "snippet": "- 世界模型为VLA提供规划能力 - VLA理解指令，世界模型预测后果 2. **从互联网视频学习世界模型** - DreamerV3作者提到的未来方向 - 不依赖机器人交互数据 - 从YouTube等视频学习物理世界模型 3. **VLA的scaling law** - 观察更大的模型是否带来更好的泛化 - 数据多样性 vs 数据质量的权衡 --- ## 📋 明日学习计划 1. **阅读 π₀ (Pi-Zero)** - Physical Intelligence的VLA模型 2. **了解 GR-2** - 字节跳动的机器人大模型 3. **学习 UniPi** - 基于世界模型的VLA方法 --- ## 📝 关键论文引用 ```bibtex @article{kim24openvla, title={OpenVLA: An Open-Source Vision-Language-Action Model}, author={Kim, Moo Jin and Pertsch, Karl and Karamcheti, Siddharth and others}, journal={arXiv preprint arXiv:2406.09246}, year={2024} } @article{brohan2023rt2, title={RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control},",
+      "recallCount": 3,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 2.4150622717293815,
+      "maxScore": 0.8072340605049576,
+      "firstRecalledAt": "2026-04-08T14:00:17.791Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "48fbdacecfd6",
+        "ad760d9f371b",
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-08",
+        "2026-04-10",
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "pi-zero",
+        "gr-2",
+        "open-source",
+        "vision-language-action",
+        "2406.09246",
+        "rt-2",
+        "世界",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-03-27.md:1:41": {
+      "key": "memory:memory/2026-03-27.md:1:41",
+      "path": "memory/2026-03-27.md",
+      "startLine": 1,
+      "endLine": 41,
+      "source": "memory",
+      "snippet": "# VLA与世界模型学习报告 - 2026-03-27 ## 📚 今日学习概览 **日期**: 2026年3月27日 (4周速成计划第1天) **学习时间**: 晚上10点汇报 **今日主题**: 1. VLA (Vision-Language-Action) 综述与核心论文 2. 世界模型 (World Models) 基础与DreamerV3 --- ## 一、VLA (Vision-Language-Action) 模型深度分析 ### 1.1 什么是VLA？ VLA模型是机器人学习领域的重大突破，它将**视觉(Visual)**、**语言(Language)**和**动作(Action)**三种模态统一到一个模型中。核心思想是： - 利用互联网规模的视觉-语言数据预训练 - 结合多样化的机器人演示数据进行微调 - 实现跨任务、跨物体、跨机器人形态的泛化能力 ### 1.2 核心论文分析 #### 📄 论文1: OpenVLA (Stanford, 2024) **基本信息** - **标题**: OpenVLA: An Open-Source Vision-Language-Action Model - **作者**: Moo Jin Kim, Karl Pertsch等 (Stanford, Google DeepMind) - **发表**: arXiv 2024年6月 - **参数规模**: 7B (70亿参数) **算法实现细节** 1. **架构组成**: - **视觉编码器**: 融合DINOv2 + SigLIP",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.721168223750951,
+      "maxScore": 0.721168223750951,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.792Z",
+      "queryHashes": [
+        "e6d7a93822b7"
+      ],
+      "recallDays": [
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "vision-language-action",
+        "1.1",
+        "利用互联网规模的视觉-语言数据预训练",
+        "1.2",
+        "open-source",
+        "vla",
+        "世界",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-03-26.md:1:36": {
+      "key": "memory:memory/2026-03-26.md:1:36",
+      "path": "memory/2026-03-26.md",
+      "startLine": 1,
+      "endLine": 36,
+      "source": "memory",
+      "snippet": "# VLA & 世界模型 4周速成计划 - 第14天晚间汇报 **汇报时间**: 2026年3月26日 22:00 (Asia/Shanghai) **学习阶段**: Week 2 完成，Week 3 启动 **今日学习时长**: 2.5小时 --- ## 📚 今日完成内容 ### 核心论文1: VLA机制性研究 (ICLR Workshop) **论文**: *Not All Features Are Created Equal: A Mechanistic Study of VLA Models* **arXiv**: 2603.19233 #### 关键发现 | 发现 | 细节 | |-----|------| | **视觉主导** | 视觉通路而非语言通路主导动作生成 | | **跨任务注入** | 99.8%的episode与源任务轨迹对齐，暴露空间绑定的运动程序 | | **语言作用** | 取决于任务结构：唯一视觉指定时语言被忽略；多目标共享时语言必需 | | **架构分工** | Expert pathway编码运动程序，VLM pathway编码目标语义 | | **工具发布** | Action Atlas交互式探索平台 | #### 对VLA设计的启示 - 视觉编码器质量至关重要 - 简单任务可能不需要复杂语言理解 - Expert pathway应独立于VLM优化 --- ### 核心论文2: 因果世界模型 (LingBot-VA) **论文**: *Causal World Modeling for Robot Contr",
+      "recallCount": 3,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 2.122669094593272,
+      "maxScore": 0.7176200361723251,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-10T14:00:21.331Z",
+      "queryHashes": [
+        "e6d7a93822b7",
+        "c2421a804969",
+        "ad760d9f371b"
+      ],
+      "recallDays": [
+        "2026-04-08",
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "asia/shanghai",
+        "2.5小时",
+        "2603.19233",
+        "99.8",
+        "lingbot-va",
+        "vla",
+        "世界",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-03-13.md:1:45": {
+      "key": "memory:memory/2026-03-13.md:1:45",
+      "path": "memory/2026-03-13.md",
+      "startLine": 1,
+      "endLine": 45,
+      "source": "memory",
+      "snippet": "# VLA学习日志 - 2026-03-13 (第1天) ## 今日学习目标 - 完成1-2篇VLA核心论文深度分析 - 理解VLA架构的核心设计思想 ## 论文清单（4周计划） ### Week 1: VLA基础架构 - [x] Day 1: RT-2 (Vision-Language-Action Models) - [ ] Day 2: OpenVLA - [ ] Day 3: Octo - [ ] Day 4: 3D Diffusion Policy - [ ] Day 5-7: 代码实践与复现 ### Week 2: 世界模型基础 ### Week 3: 高级VLA方法 ### Week 4: 综合应用与项目 ## 今日完成内容 - RT-2深度分析报告 ### 论文信息 - **标题**: RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control - **作者**: Google DeepMind团队 (54位作者，包括Sergey Levine, Chelsea Finn等) - **发表**: arXiv 2023年7月28日 - **核心贡献**: 提出了VLA (Vision-Language-Action)模型类别，将大规模视觉语言模型直接用于机器人端到端控制 --- ## 📚 学习总结报告 ### 一、算法实现细节 #### 1. 核心架构设计 RT-2基于两个主流VLM backbone： - **PaLI-X** (Chen et a",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7111935607758937,
+      "maxScore": 0.7111935607758937,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.792Z",
+      "queryHashes": [
+        "e6d7a93822b7"
+      ],
+      "recallDays": [
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "完成1-2篇vla核心论文深度分析",
+        "rt-2",
+        "vision-language-action",
+        "5-7",
+        "rt-2深度分析报告",
+        "rt-2基于两个主流vlm",
+        "pali-x",
+        "vla"
+      ]
+    },
+    "memory:memory/2026-03-27.md:92:134": {
+      "key": "memory:memory/2026-03-27.md:92:134",
+      "path": "memory/2026-03-27.md",
+      "startLine": 92,
+      "endLine": 134,
+      "source": "memory",
+      "snippet": "**基本信息** - **标题**: π₀: A Vision-Language-Action Flow Model for General Robot Control - **作者**: Kevin Black, Noah Brown, Danny Driess等 - **发表**: RSS 2025 (arXiv 2024年10月) - **机构**: Physical Intelligence (Pi) **算法实现细节** 1. **核心创新 - Flow Matching架构**: - 不同于自回归生成，使用流匹配(Flow Matching)生成动作 - 连续时间扩散模型变体 - 更稳定的动作生成过程 2. **架构设计**: - 基于预训练VLM (Vision-Language Model) - 继承互联网规模的语义知识 - 多模态输入: 图像 + 语言指令 3. **训练数据**: - 大规模多平台数据: - 单臂机器人 - 双臂机器人 - 移动操作机器人 - 复杂灵巧任务数据 **实验结果与关键指标** - **零样本能力**: 预训练后直接执行未见任务 - **语言跟随**: 能理解复杂自然语言指令 - **技能获取**: 微调后快速学习新技能 - **任务覆盖**: - 衣物折叠 (laundry folding) - 桌面清洁 - 盒子组装 - 高灵巧度操作 **创新点** 1. **Flow Matching for VLA**: 首次将流匹",
+      "recallCount": 3,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.9652371562098887,
+      "maxScore": 0.6980590597457311,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "e6d7a93822b7",
+        "c2421a804969",
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-08",
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "vision-language-action",
+        "vision-language",
+        "基本",
+        "信息",
+        "标题",
+        "vision",
+        "language",
+        "action"
+      ]
+    },
+    "memory:memory/2026-04-01.md:95:136": {
+      "key": "memory:memory/2026-04-01.md:95:136",
+      "path": "memory/2026-04-01.md",
+      "startLine": 95,
+      "endLine": 136,
+      "source": "memory",
+      "snippet": "| 世界模型类型 | 扩散模型 | RSSM | 扩散模型 | | 策略优化方式 | 端到端RL | 潜在空间RL | 规划+动作优化 | | 视觉保真度 | 极高 | 中等 | 高 | | 计算成本 | 高(扩散采样) | 低 | 中等 | | 训练稳定性 | 高(冻结WM) | 中等 | 中等 | ### 1.6 实际应用问题 **优势**: - ✅ 避免昂贵的真实世界交互 - ✅ 扩散模型提供高保真视觉预测 - ✅ 可处理多样化的操作任务 - ✅ 与预训练策略兼容性好 **挑战**: - ⚠️ 扩散模型推理成本高，实时性差 - ⚠️ 需要大量数据预训练世界模型 - ⚠️ 长期轨迹预测可能累积误差 - ⚠️ 复杂接触动力学建模困难 --- ## 二、VLAC (Vision-Language-Action-Critic) 深度分析 ### 2.1 基本信息 - **标题**: A Vision-Language-Action-Critic Model for Robotic Real-World Reinforcement Learning - **作者**: Shaopeng Zhai, Qi Zhang, Tianyi Zhang等 (上海AI Lab) - **发表**: arXiv 2025年9月 - **核心思想**: 统一VLA策略和评价模型，通过密集过程奖励解决真实世界RL的稀疏奖励和探索低效问题 ### 2.2 算法实现细节 **整体架构**: ``` 输入: 当前观测图像 I_t + 语言指令 L ↓ VLAC模型 (基于Int",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.6940211008866819,
+      "maxScore": 0.6940211008866819,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.792Z",
+      "queryHashes": [
+        "e6d7a93822b7"
+      ],
+      "recallDays": [
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "1.6",
+        "vision-language-action-critic",
+        "2.1",
+        "real-world",
+        "2.2",
+        "i-t",
+        "世界",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-04-06.md:186:229": {
+      "key": "memory:memory/2026-04-06.md:186:229",
+      "path": "memory/2026-04-06.md",
+      "startLine": 186,
+      "endLine": 229,
+      "source": "memory",
+      "snippet": "- ACoT-VLA在动作空间推理，更直接但可解释性稍弱 ### 技术趋势总结 1. **推理层次化：** - 从端到端 → 语言推理 → 视觉推理 → 动作推理 - 越来越接近实际控制空间 2. **训练范式演进：** - 行为克隆 → 离线RL → 世界模型中RL - 样本效率和安全性持续提升 3. **多模态融合深化：** - 统一多模态模型(UMM)成为基础设施 - 视觉、语言、动作的统一表示学习 --- ## 📋 明日学习计划 (第22天) 1. **阅读 V-JEPA 2** - 自监督视频模型用于理解和规划 2. **了解 GEN-1** - Generalist AI的具身基础模型 3. **复习本周内容** - 整理ACoT-VLA和VLA-MBPO的核心要点 --- ## 📝 关键论文引用 ```bibtex @article{zhong2026acot, title={ACoT-VLA: Action Chain-of-Thought for Vision-Language-Action Models}, author={Zhong, Linqing and others}, journal={arXiv preprint arXiv:2601.11404}, year={2026} } @article{yu2026vlambpo, title={Towards Practical World Model-based Reinforcement Learning fo",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.6893687963771655,
+      "maxScore": 0.6893687963771655,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.792Z",
+      "queryHashes": [
+        "e6d7a93822b7"
+      ],
+      "recallDays": [
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "acot-vla在动作空间推理",
+        "v-jepa",
+        "gen-1",
+        "整理acot-vla和vla-mbpo的核心要点",
+        "acot-vla",
+        "chain-of-thought",
+        "vision-language-action",
+        "2601.11404"
+      ]
+    },
+    "memory:memory/2026-03-14.md:1:25": {
+      "key": "memory:memory/2026-03-14.md:1:25",
+      "path": "memory/2026-03-14.md",
+      "startLine": 1,
+      "endLine": 25,
+      "source": "memory",
+      "snippet": "# VLA & 世界模型学习日报 - 2026-03-14 ## 📚 今日分析论文 ### 论文1: RT-2 - VLA领域的开创性工作 **标题**: RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control **作者**: Google DeepMind (Anthony Brohan等53位作者) **发表**: arXiv 2023.07 **论文链接**: https://arxiv.org/abs/2307.15818 #### 1. 算法实现细节 **核心架构设计**: - **VLA (Vision-Language-Action)** 模型定义：将视觉-语言模型与机器人控制相结合，直接从互联网规模的视觉-语言数据中学习 - **动作表示为文本token**: 关键创新是将机器人动作（连续向量）离散化为文本token，与自然语言token统一处理 - 动作空间被划分为256个离散区间（每个维度） - 动作表示为8个文本token的字符串（例如：\"1 128 255 64 32 90 0 10\"） - **模型基础**: 基于PaLI-X (55B参数) 和 PaLM-E (12B参数) 视觉-语言模型进行co-fine-tuning - **输入格式**: - 图像（1-2张）+ 自然语言指令 → 输出动作token序列 - 支持链式思考（Chain-of-Thought）推理 **训练策略**: - **Co-fine-",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.688709268213754,
+      "maxScore": 0.688709268213754,
+      "firstRecalledAt": "2026-04-08T14:00:17.792Z",
+      "lastRecalledAt": "2026-04-08T14:00:17.792Z",
+      "queryHashes": [
+        "e6d7a93822b7"
+      ],
+      "recallDays": [
+        "2026-04-08"
+      ],
+      "conceptTags": [
+        "rt-2",
+        "vision-language-action",
+        "2023.07",
+        "arxiv.org/abs/2307.15818",
+        "将视觉-语言模型与机器人控制相结合",
+        "直接从互联网规模的视觉-语言数据中学习",
+        "基于pali-x",
+        "palm-e"
+      ]
+    },
+    "memory:memory/2026-03-25.md:1:41": {
+      "key": "memory:memory/2026-03-25.md:1:41",
+      "path": "memory/2026-03-25.md",
+      "startLine": 1,
+      "endLine": 41,
+      "source": "memory",
+      "snippet": "# VLA & 世界模型学习日志 - Day 1 **日期**: 2026-03-25 **学习时间**: 晚上10点 **学习时长**: 约2小时 **论文数量**: 2篇核心论文深度分析 --- ## 📚 今日学习论文 ### 论文1: GigaWorld-Policy (世界模型方向) - **标题**: GigaWorld-Policy: An Efficient Action-Centered World–Action Model - **作者**: GigaAI团队 (Angen Ye, Chaojun Ni等) - **发表**: arXiv 2026年3月 - **关键词**: World-Action Model, Video Generation, Robot Policy Learning ### 论文2: DAM-VLA (VLA方向) - **标题**: DAM-VLA: A Dynamic Action Model-Based Vision-Language-Action Framework for Robot Manipulation - **作者**: 三星研究院 (Xiongfeng Peng等) - **发表**: ICRA 2026 Accepted - **关键词**: VLA, Diffusion Policy, Action Routing --- ## 🔬 论文1深度分析: GigaWorld-Policy ### 1. 算法实现细节 **核心架构**: - 基于5B参数的Diffusion Tra",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.3384301725107406,
+      "maxScore": 0.7455126134826616,
+      "firstRecalledAt": "2026-04-10T07:42:02.600Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "c2421a804969",
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "gigaworld-policy",
+        "action-centered",
+        "world-action",
+        "dam-vla",
+        "model-based",
+        "vision-language-action",
+        "vla",
+        "世界"
+      ]
+    },
+    "memory:memory/2026-04-07.md:217:258": {
+      "key": "memory:memory/2026-04-07.md:217:258",
+      "path": "memory/2026-04-07.md",
+      "startLine": 217,
+      "endLine": 258,
+      "source": "memory",
+      "snippet": "1. **动作块重叠**: 连续推理的动作块在时间步上重叠 2. **时间戳对齐**: 仔细对齐相邻推理的动作块时间戳 3. **平滑过渡**: 使用插值确保动作连续性 ```python # 动作块对齐示意 时间: t0 t1 t2 t3 t4 t5 推理1: [a0-a1-a2-a3-a4] 推理2: [a2'-a3'-a4'-a5'-a6'] 实际执行: a0-a1-a2-(a2+a2')/2-(a3+a3')/2-(a4+a4')/2-a5-a6 ``` #### 1.3 数据细节 **自采数据** (高精度双臂任务): - **Lego拆卸**: 338小时遥操作数据 - **毛巾折叠**: 400小时遥操作数据 - **数据采集**: 专业操作员 + 高质量遥操作设备 --- ### 2. 实验结果与关键指标 **仿真基准测试**: | 基准 | 指标 | Xiaomi-Robotics-0 | SOTA对比 | |-----|------|-------------------|---------| | **LIBERO** | 平均成功率 | **98.7%** | +4.2% vs π₀ | | **SimplerEnv** | Google Robot (VM) | **85.5%** | +6.8% | | | Google Robot (VA) | **74.7%** | +5.3% | | | WidowX | **79.2%** | +7.1% | | **",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.735997384193109,
+      "maxScore": 0.735997384193109,
+      "firstRecalledAt": "2026-04-10T07:42:02.600Z",
+      "lastRecalledAt": "2026-04-10T07:42:02.600Z",
+      "queryHashes": [
+        "c2421a804969"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "a0-a1-a2-a3-a4",
+        "a0-a1-a2",
+        "2-a5-a6",
+        "1.3",
+        "xiaomi-robotics-0",
+        "98.7",
+        "4.2",
+        "85.5"
+      ]
+    },
+    "memory:memory/2026-03-19.md:35:71": {
+      "key": "memory:memory/2026-03-19.md:35:71",
+      "path": "memory/2026-03-19.md",
+      "startLine": 35,
+      "endLine": 71,
+      "source": "memory",
+      "snippet": "- **投影层**: 将视觉特征映射到语言模型的输入空间 - **动作输出**: 连续动作token化后输出 **训练细节**: - **数据集**: Open X-Embodiment (970k真实机器人演示轨迹) - **数据覆盖**: 22种不同机器人形态，多种任务和场景 - **训练资源**: 64x A100 GPU × 15天 - **训练方式**: 从Prismatic-7B VLM微调而来 ### 2. 实验结果与关键指标 **Zero-shot泛化测试** (多机器人平台): - **Bridge V2 (WidowX)**: 直接零样本控制 - **Google Robot**: 与RT-2-X对比测试 - **成功率**: 在29个任务上比RT-2-X高16.5%（绝对提升） **Fine-tuning性能** (Franka机器人): - 对比基线: Diffusion Policy（从头训练） - OpenVLA在涉及多物体、多任务的环境中表现更优 - 在语言理解任务上超越Diffusion Policy 20.4% - 是唯一能实现50%+成功率的通用方法 **效率指标**: - 支持LoRA微调（仅训练1.4%参数） - 可在消费级GPU上微调 - 支持量化部署，不损失性能 ### 3. 创新点 1. **首个真正开源的大规模VLA模型** - 提供完整checkpoint、训练代码、微调notebook - 可在HuggingFace直接下载使用 2. **双塔视觉编码器设计** - DINOv2 + SigL",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7035488333305485,
+      "maxScore": 0.7035488333305485,
+      "firstRecalledAt": "2026-04-10T07:42:02.600Z",
+      "lastRecalledAt": "2026-04-10T07:42:02.600Z",
+      "queryHashes": [
+        "c2421a804969"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "x-embodiment",
+        "从prismatic-7b",
+        "zero-shot泛化测试",
+        "与rt-2-x对比测试",
+        "在29个任务上比rt-2-x高16.5",
+        "fine-tuning性能",
+        "20.4",
+        "仅训练1.4"
+      ]
+    },
+    "memory:memory/2026-03-26.md:30:82": {
+      "key": "memory:memory/2026-03-26.md:30:82",
+      "path": "memory/2026-03-26.md",
+      "startLine": 30,
+      "endLine": 82,
+      "source": "memory",
+      "snippet": "### 核心论文2: 因果世界模型 (LingBot-VA) **论文**: *Causal World Modeling for Robot Control* **arXiv**: 2601.21998 | **代码开源**: ✅ #### 三大核心设计 1. **共享潜在空间 + MoT架构**: 视觉和动作token统一表示，Mixture-of-Transformers处理 2. **闭环Rollout**: 使用真实观测而非预测观测，避免误差累积 3. **异步推理流水线**: 动作预测与执行并行，支持实时控制 #### 性能表现 - 长程操作: 显著优势 - 数据效率: Post-training阶段高效 - 泛化性: 对新配置强泛化 --- ## 🧠 核心洞察 ### 1. VLA机制的新认知 ``` 传统理解: VLA = 视觉理解 + 语言理解 → 动作 研究发现: VLA ≈ 视觉编码空间运动程序 + 语言条件触发 ``` ### 2. 世界模型演进趋势 ``` DreamerV3 → R2-Dreamer → DreamerV4 → LingBot-VA (RSSM) → (无解码器) → (实时) → (自回归扩散+闭环) ``` --- ## 📊 学习进度 | 指标 | 数值 | |-----|------| | **累计论文/报告** | 30篇 | | **Week 2** | ✅ 完成 | | **Week 3** | 🔄 启动 | ### 已覆盖主题 - ✅ VLA基础架构 (11篇) - ✅ 世界",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.6848710336981573,
+      "maxScore": 0.6848710336981573,
+      "firstRecalledAt": "2026-04-10T07:42:02.600Z",
+      "lastRecalledAt": "2026-04-10T07:42:02.600Z",
+      "queryHashes": [
+        "c2421a804969"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "lingbot-va",
+        "2601.21998",
+        "mixture-of-transformers处理",
+        "post-training阶段高效",
+        "r2-dreamer",
+        "累计论文/报告",
+        "核心",
+        "论文"
+      ]
+    },
+    "memory:memory/2026-03-27.md:62:100": {
+      "key": "memory:memory/2026-03-27.md:62:100",
+      "path": "memory/2026-03-27.md",
+      "startLine": 62,
+      "endLine": 100,
+      "source": "memory",
+      "snippet": "- 微调后在多物体、强语言 grounding 任务上表现突出 - 相比Diffusion Policy提升**20.4%** **创新点** 1. **开源性**: 首个大规模开源VLA模型，降低研究门槛 2. **高效微调**: 支持LoRA低秩适配，可在消费级GPU上微调 3. **量化支持**: 支持模型量化，推理效率提升 4. **视觉特征融合**: DINOv2 + SigLIP双编码器设计 **与其他方法对比** | 特性 | OpenVLA | RT-2 (Google) | Gato | |------|---------|---------------|------| | 开源 | ✅ | ❌ | 部分 | | 参数效率 | 高 (7B) | 低 (55B) | 中等 | | 微调友好 | ✅ LoRA | 困难 | 中等 | | 视觉编码 | DINOv2+SigLIP | PaLI-X | 简单CNN | **实际应用问题** 1. **计算资源**: 7B参数需要较大显存，但量化后可缓解 2. **数据需求**: 微调需要特定任务的机器人数据 3. **延迟问题**: 自回归生成动作token存在推理延迟 4. **安全考虑**: 真实机器人部署需要安全约束机制 --- #### 📄 论文2: π₀ (Physical Intelligence, 2024) **基本信息** - **标题**: π₀: A Vision-Language-Action Flow Model for General Robot Control - *",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.6801195078057749,
+      "maxScore": 0.6801195078057749,
+      "firstRecalledAt": "2026-04-10T07:42:02.600Z",
+      "lastRecalledAt": "2026-04-10T07:42:02.600Z",
+      "queryHashes": [
+        "c2421a804969"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "20.4",
+        "rt-2",
+        "pali-x",
+        "vision-language-action",
+        "微调",
+        "物体",
+        "语言",
+        "grounding"
+      ]
+    },
+    "memory:memory/2026-04-03.md:1:42": {
+      "key": "memory:memory/2026-04-03.md:1:42",
+      "path": "memory/2026-04-03.md",
+      "startLine": 1,
+      "endLine": 42,
+      "source": "memory",
+      "snippet": "# VLA与世界模型学习报告 - 2026年4月3日 **日期**: 2026年4月3日 (4周速成计划第22天) **学习时间**: 晚上10点汇报 **今日主题**: 1. Gaussian World Models (GWM) - 3D高斯表示的世界模型 2. NVIDIA Cosmos平台 - 物理AI世界基础模型 --- ## 一、Gaussian World Models (GWM, ICCV 2025) 深度分析 ### 1.1 基本信息 - **标题**: Gaussian World Models: 3D Gaussian Splatting for World Modeling in Robotic Manipulation - **作者**: Jiaming Liu, Runzi Wang, Zhenyu Zhang等 - **发表**: ICCV 2025 - **核心思想**: 利用3D Gaussian Splatting作为世界模型的表示基础，实现高质量的视觉预测和物理对齐的评估 ### 1.2 算法实现细节 **核心架构**: ``` 输入: 当前多视角观测 {I_t^1, I_t^2, ..., I_t^n} + 动作 a_t ↓ Step 1: 3D Gaussian编码器 - 将观测编码为3D高斯场景表示 G_t - 每个高斯包含: 位置μ, 协方差Σ, 颜色c, 不透明度α Step 2: 动态预测网络 - 基于动作预测高斯参数变化 ΔG",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.6026203957410297,
+      "maxScore": 0.6026203957410297,
+      "firstRecalledAt": "2026-04-10T09:37:22.035Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "网络",
+        "1.1",
+        "1.2",
+        "i-t",
+        "a-t",
+        "g-t",
+        "vla",
+        "世界"
+      ]
+    },
+    "memory:memory/2026-03-27.md:164:210": {
+      "key": "memory:memory/2026-03-27.md:164:210",
+      "path": "memory/2026-03-27.md",
+      "startLine": 164,
+      "endLine": 210,
+      "source": "memory",
+      "snippet": "--- ## 二、世界模型 (World Models) 深度分析 ### 2.1 什么是世界模型？ 世界模型是AI代理对环境的**内部表示**，能够： - 学习紧凑的潜在状态表示 - 预测动作的后果 - 支持\"如果...会怎样\"的反事实推理 - 实现规划、安全验证和sim-to-real迁移 **核心价值**: 比传统强化学习高**10-100倍**的样本效率 ### 2.2 核心论文分析 #### 📄 论文3: DreamerV3 (DeepMind, Nature 2025) **基本信息** - **标题**: Mastering diverse control tasks through world models - **作者**: Danijar Hafner等 (DeepMind) - **发表**: Nature 2025 (arXiv 2023年1月) - **系列**: Dreamer第三代 **算法实现细节** 1. **三大核心网络**: **World Model (世界模型)**: ``` - 编码器 (Encoder): 将感官输入x_t映射为潜在表示z_t - 序列模型: 循环状态h_t预测未来表示 - 解码器 (Decoder): 重建输入 - 奖励预测器: 预测奖励r_t - 终止预测器: 预测回合是否继续c_t ``` 使用**Recurrent State-Space Model (RSSM)**: - 随机表示z_t (捕捉不确定性) - 确",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.5921641453128621,
+      "maxScore": 0.5921641453128621,
+      "firstRecalledAt": "2026-04-10T09:37:22.035Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "网络",
+        "2.1",
+        "安全验证和sim-to-real迁移",
+        "10-100倍",
+        "2.2",
+        "将感官输入x-t映射为潜在表示z-t",
+        "循环状态h-t预测未来表示",
+        "预测奖励r-t"
+      ]
+    },
+    "memory:memory/2026-03-25.md:240:259": {
+      "key": "memory:memory/2026-03-25.md:240:259",
+      "path": "memory/2026-03-25.md",
+      "startLine": 240,
+      "endLine": 259,
+      "source": "memory",
+      "snippet": "1. GigaWorld-Policy的稀疏帧预测(Δ步长)如何影响快速运动? 2. DAM-VLA的路由机制在复杂任务中如何表现? 3. 两篇论文的结合: 能否将action routing应用到world model中? 4. 1-bit量化(BitVLA)与这些大模型的结合可能性 --- ## 📋 明日学习计划 1. **AdaWorldPolicy**: World-Model-Driven Diffusion Policy (arXiv 2602.20057) 2. **BitVLA**: 1-bit VLA模型 (arXiv 2506.07530) 3. 阅读VLA综述论文，建立整体认知框架 4. 整理核心技术脉络图 --- **学习感受**: 两篇论文代表了当前robot learning的两个重要方向——World Model的效率优化和VLA的动态能力分解。GigaWorld-Policy的\"可选视频生成\"是一个 clever 的设计，解决了WAM的推理延迟问题。DAM-VLA对臂移动和夹爪操作的区分很有insight，符合人类操作直觉。 **疑惑**: 两篇论文的代码都未开源，无法验证实现细节。GigaWorld-Policy的10,000小时数据收集成本高昂，实际复现难度大。",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.5838166796457488,
+      "maxScore": 0.5838166796457488,
+      "firstRecalledAt": "2026-04-10T09:37:22.035Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "gigaworld-policy的稀疏帧预测",
+        "dam-vla的路由机制在复杂任务中如何表现",
+        "1-bit量化",
+        "world-model-driven",
+        "2602.20057",
+        "1-bit",
+        "2506.07530",
+        "gigaworld-policy的"
+      ]
+    },
+    "memory:memory/2026-03-14.md:230:274": {
+      "key": "memory:memory/2026-03-14.md:230:274",
+      "path": "memory/2026-03-14.md",
+      "startLine": 230,
+      "endLine": 274,
+      "source": "memory",
+      "snippet": "- **实现复杂度**: 比PPO/SAC等算法复杂 **应用建议**: - 适用于样本收集昂贵的场景 - 适合需要长期规划的任务 - 适合需要多任务泛化的场景 - 不适合需要极低延迟的应用 **开源资源**: - 官方实现: https://github.com/danijar/dreamerv3 - 代码质量高，文档完善 --- ## 🔗 VLA与世界模型的关联 ### 互补性分析 | 维度 | VLA (如RT-2) | 世界模型 (如DreamerV3) | |-----|-------------|---------------------| | **核心能力** | 语义理解、指令跟随 | 预测、规划、想象 | | **知识来源** | 互联网视觉-语言数据 | 环境交互数据 | | **学习方式** | 模仿学习+预训练 | 强化学习+模型学习 | | **泛化类型** | 跨任务语义泛化 | 跨环境动态泛化 | | **推理能力** | 语言推理 | 视觉想象推理 | ### 融合方向（研究前沿） 1. **VLA + World Model**: - VLA提供语义理解和任务解析 - 世界模型提供预测和规划能力 - 潜在表示共享 2. **Language-Conditioned World Models**: - 用语言指令引导世界模型 - 文本描述目标状态，模型想象达成路径 3. **VLA with Imagination**: - VLA不直接输出动作，而是想象未来状态 - 通过世界模型进",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.5780028714176249,
+      "maxScore": 0.5780028714176249,
+      "firstRecalledAt": "2026-04-10T09:37:22.035Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "比ppo/sac等算法复杂",
+        "github.com/danijar/dreamerv3",
+        "如rt-2",
+        "互联网视觉-语言数据",
+        "language-conditioned",
+        "实现",
+        "复杂",
+        "ppo"
+      ]
+    },
+    "memory:memory/2026-04-01.md:286:332": {
+      "key": "memory:memory/2026-04-01.md:286:332",
+      "path": "memory/2026-04-01.md",
+      "startLine": 286,
+      "endLine": 332,
+      "source": "memory",
+      "snippet": "### 4.2 关键技术演进 ``` 2024: VLA基础架构 (OpenVLA, π₀) ↓ 2025 Q1: 世界模型预训练 (V-JEPA 2, Cosmos) ↓ 2025 Q2: VLA + World Model结合 (CoT-VLA, Helix) ↓ 2025 Q3: 强化学习优化 (World4RL, VLAC) ↓ 2026: 统一框架 (策略+世界模型+评价) ? ``` ### 4.3 实际部署考量 | 因素 | 当前状态 | 发展方向 | |------|---------|----------| | 推理延迟 | 高(扩散/VLM) | 蒸馏、量化、边缘优化 | | 数据需求 | 大(预训练) | 自监督、合成数据 | | 安全性 | 中等 | 形式化验证、约束RL | | 泛化能力 | 任务级 | 物体级、环境级 | | 可解释性 | 低 | 注意力可视化、思维链 | --- ## 五、学习总结与明日计划 ### 今日收获 1. **World4RL理解**: - 扩散世界模型可实现高保真环境建模 - 在想象环境中优化策略避免真实交互 - Two-Hot编码是动作建模的关键技术 2. **VLAC理解**: - 统一VLA-Critic架构简化系统设计 - 密集过程奖励显著提升RL样本效率 - 渐进式人类介入协议实用且高效 3. **领域洞察**: - World Model + VLA + RL三者融合是趋势 - 从稀疏奖励向密集奖励演进 - 从纯自",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.5659264730012434,
+      "maxScore": 0.5659264730012434,
+      "firstRecalledAt": "2026-04-10T09:37:22.035Z",
+      "lastRecalledAt": "2026-04-10T09:37:22.035Z",
+      "queryHashes": [
+        "f10fa61f1720"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "4.2",
+        "v-jepa",
+        "cot-vla",
+        "4.3",
+        "扩散/vlm",
+        "two-hot编码是动作建模的关键技术",
+        "统一vla-critic架构简化系统设计",
+        "关键"
+      ]
+    },
+    "memory:memory/2026-04-07.md:251:286": {
+      "key": "memory:memory/2026-04-07.md:251:286",
+      "path": "memory/2026-04-07.md",
+      "startLine": 251,
+      "endLine": 286,
+      "source": "memory",
+      "snippet": "**VLM能力保持**: - 在多个通用VLM基准上匹配底层Qwen2.5-VL性能 - 具身推理基准上保持强性能 - **关键发现**: 混合训练避免了灾难性遗忘 **真实机器人实验** (双臂操作): | 任务 | 成功率 | 吞吐率 | 对比方法 | |-----|--------|--------|---------| | **Lego拆卸** | 87.3% | **2.1x** | vs Octo | | **毛巾折叠** | 82.5% | **1.8x** | Octo | | **端到端延迟** | **<50ms** | - | 消费级GPU | **性能亮点**: - 消费级GPU (RTX 4090) 上实现**50ms以下**端到端延迟 - 动作生成**流畅无抖动**，连续执行无卡顿 - 双臂协调任务上显著超越单臂VLA方法 --- ### 3. 创新点 | 创新 | 说明 | |------|------| | **Λ-shape注意力** | 创新性地修改注意力掩码，平衡动作连续性和条件依赖性 | | **异步执行训练** | 专门针对推理延迟进行后训练优化 | | **开源完整方案** | 提供预训练+后训练检查点、推理代码、详细文档 | | **消费级部署** | 首次在RTX 4090级别GPU上实现实时VLA执行 | | **双臂VLA** | 针对高精度双臂任务优化 | --- ### 4. 与其他方法对比 | 模型 | 参数量 | 延迟 | 开源 | 双臂支持 | 核心特点 | |------|--------|---",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7148354052338451,
+      "maxScore": 0.7148354052338451,
+      "firstRecalledAt": "2026-04-10T14:00:21.331Z",
+      "lastRecalledAt": "2026-04-10T14:00:21.331Z",
+      "queryHashes": [
+        "ad760d9f371b"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "在多个通用vlm基准上匹配底层qwen2.5-vl性能",
+        "87.3",
+        "2.1x",
+        "82.5",
+        "1.8x",
+        "λ-shape注意力",
+        "vlm",
+        "能力"
+      ]
+    },
+    "memory:memory/2026-04-08.md:166:209": {
+      "key": "memory:memory/2026-04-08.md:166:209",
+      "path": "memory/2026-04-08.md",
+      "startLine": 166,
+      "endLine": 209,
+      "source": "memory",
+      "snippet": "- 一致性: 可维持数分钟 3. **一致性保持**: - 长期一致性: 世界状态在交互中保持一致 - 物理合理性: 生成的环境遵循基本物理规律 - 可导航性: 用户可以在环境中自由移动 **与Genie 2对比**: - Genie 2: 2D平台游戏世界 - Genie 3: 通用3D交互环境 - 大幅提升: 从游戏到真实感环境 ### 2. 实验结果和关键指标 **生成质量**: - 分辨率: 720p HD - 帧率: 24 FPS (实时交互) - 一致性时长: 数分钟 - 多样性: 前所未有的环境多样性 **用户研究**: - 流畅的实时交互体验 - 支持键盘/手柄等多种输入 - 环境响应及时，延迟低 **能力范围**: - 支持多种环境类型 - 从写实风格到幻想风格 - 室内、室外、混合场景 ### 3. 创新点 | 创新 | 说明 | |------|------| | 通用世界模型 | 不限于特定领域，可生成任意环境 | | 实时交互 | 24 FPS实时响应用户输入 | | 长期一致性 | 数分钟内保持世界状态一致 | | 文本驱动 | 自然语言描述即可生成复杂环境 | | 3D导航 | 支持第一人称自由探索 | ### 4. 与其他世界模型对比 | 模型 | 类型 | 交互性 | 分辨率 | 一致性 | 应用领域 | |------|------|--------|--------|--------|---------|",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7127564445858624,
+      "maxScore": 0.7127564445858624,
+      "firstRecalledAt": "2026-04-10T14:00:21.331Z",
+      "lastRecalledAt": "2026-04-10T14:00:21.331Z",
+      "queryHashes": [
+        "ad760d9f371b"
+      ],
+      "recallDays": [
+        "2026-04-10"
+      ],
+      "conceptTags": [
+        "支持键盘/手柄等多种输入",
+        "一致性",
+        "维持",
+        "分钟",
+        "保持",
+        "长期",
+        "世界",
+        "状态"
+      ]
+    },
+    "memory:memory/2026-04-07.md:97:127": {
+      "key": "memory:memory/2026-04-07.md:97:127",
+      "path": "memory/2026-04-07.md",
+      "startLine": 97,
+      "endLine": 127,
+      "source": "memory",
+      "snippet": "- **推理速度**: 仅增加 8ms 延迟 (EAR+IAR计算开销) - **训练效率**: 达到同等性能所需数据减少 35% - **泛化能力**: 未见任务上的零样本成功率提升 12% --- ### 3. 创新点 | 创新 | 说明 | 影响 | |------|------|------| | **动作空间思维链** | 首个在动作空间而非语义/视觉空间进行推理的框架 | 根本性范式转变 | | **双路推理器** | EAR提供显式轨迹指导，IAR捕获隐式意图 | 互补性设计 | | **运动学一致性** | 推理过程天然满足运动学约束 | 更流畅动作生成 | | **即插即用** | 可集成到任意现有VLA架构 | 高实用性 | **核心洞察**: > \"最有效的推理形式是在动作空间中的深思熟虑，而非抽象的语言或视觉子目标。\" --- ### 4. 与其他方法对比 | 模型 | 推理空间 | 参数量 | 实时性 | 开源 | 核心局限 | |------|---------|--------|--------|------|---------| | **ACoT-VLA** | 动作空间 | 7B+10M | ✅ | ✅ | 需训练EAR/IAR | | **CoT-VLA** | 语言空间 | 7B | ✅ | ❌ | 语言-动作鸿沟 | | **Helix (Figure)** | 隐式端到端 | 未知 | ✅ | ❌ | 不可解释 | | **VoxPoser** | 视觉空间 | 7B | ❌ | ✅ | 3D标注依赖 | | **π₀*",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.4519995598999291,
+      "maxScore": 0.740278067531126,
+      "firstRecalledAt": "2026-04-10T14:00:21.331Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "ad760d9f371b",
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-10",
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "首个在动作空间而非语义/视觉空间进行推理的框架",
+        "acot-vla",
+        "需训练ear/iar",
+        "cot-vla",
+        "语言-动作鸿沟",
+        "推理",
+        "速度",
+        "增加"
+      ]
+    },
+    "memory:memory/2026-03-19.md:322:358": {
+      "key": "memory:memory/2026-03-19.md:322:358",
+      "path": "memory/2026-03-19.md",
+      "startLine": 322,
+      "endLine": 358,
+      "source": "memory",
+      "snippet": "- ✅ 可预测的scaling特性 - ✅ 适用于连续/离散动作、视觉/向量输入 **限制**: - ❌ 模型预测存在误差累积 - ❌ 非常长的时程规划仍具挑战 - ⚠️ 需要足够的计算资源进行想象训练 - ⚠️ 模型训练时间较长 --- ## 🧠 核心概念关联 ### VLA vs 世界模型 | 维度 | VLA (OpenVLA/RT-2) | 世界模型 (DreamerV3) | |------|---------------------|----------------------| | **核心能力** | 语言理解 → 动作 | 想象未来 → 规划 | | **学习方式** | 模仿学习（行为克隆） | 强化学习 | | **数据需求** | 需要高质量演示数据 | 只需要奖励信号 | | **泛化类型** | 语义泛化、指令理解 | 策略泛化、长期规划 | | **优势场景** | 自然语言指令跟随 | 探索、长期任务 | | **结合点** | VLA提供策略初始化 | 世界模型用于规划 | ### 未来方向思考 1. **VLA + 世界模型结合** - 用VLA作为世界模型的策略初始化 - 世界模型为VLA提供规划能力 - VLA理解指令，世界模型预测后果 2. **从互联网视频学习世界模型** - DreamerV3作者提到的未来方向 - 不依赖机器人交互数据 - 从YouTube等视频学习物理世界模型 3. **VLA的scaling law**",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.741876718132175,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-11T14:00:26.097Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "784572a22484",
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-11",
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "适用于连续/离散动作",
+        "视觉/向量输入",
+        "openvla/rt-2",
+        "预测",
+        "scaling",
+        "特性",
+        "适用",
+        "连续"
+      ]
+    },
+    "memory:memory/2026-03-13.md:77:114": {
+      "key": "memory:memory/2026-03-13.md:77:114",
+      "path": "memory/2026-03-13.md",
+      "startLine": 77,
+      "endLine": 114,
+      "source": "memory",
+      "snippet": "| 能力维度 | RT-2表现 | 相比RT-1 | |---------|---------|---------| | 新对象泛化 | 显著提升 | 大幅超越 | | 语义指令理解 | 支持开放词汇 | 质的飞跃 | | 符号理解 | 数字/图标识别 | 全新能力 | | 关系推理 | 物体间关系判断 | 全新能力 | | CoT推理 | 多阶段推理 | 全新能力 | #### 3. 涌现能力 (Emergent Capabilities) - **符号放置**: 将物体放到特定数字/图标上 (训练数据中不存在) - **关系推理**: \"拿起离另一个物体最近的那个\" - **语义推理**: - 找到可以用作锤子的物体 → 石头 - 给疲惫的人拿什么饮料 → 能量饮料 - **Chain-of-Thought**: 多步逻辑推理完成任务 --- ### 三、创新点分析 #### 1. 概念创新 - **定义了VLA模型类别**: Vision-Language-Action的统一框架 - **动作即语言**: 将机器人动作视为一种特殊的\"语言\" #### 2. 技术创新 - **零架构改动**: 直接使用预训练VLM，不添加任何新参数 - **统一训练**: 互联网数据和机器人数据联合训练 - **端到端闭环**: 从视觉+语言直接输出低层控制信号 #### 3. 范式创新 打破了传统分层架构： ``` 传统: VLM → 高层规划 → 低层控制器 → 动作 RT-2: VLM → 直接输出动作 (端到端) ``` ---",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7373841207344973,
+      "maxScore": 0.7373841207344973,
+      "firstRecalledAt": "2026-04-11T14:00:26.097Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "rt-2表现",
+        "相比rt-1",
+        "数字/图标识别",
+        "将物体放到特定数字/图标上",
+        "chain-of-thought",
+        "vision-language-action的统一框架",
+        "rt-2",
+        "能力"
+      ]
+    },
+    "memory:memory/2026-04-07.md:122:160": {
+      "key": "memory:memory/2026-04-07.md:122:160",
+      "path": "memory/2026-04-07.md",
+      "startLine": 122,
+      "endLine": 160,
+      "source": "memory",
+      "snippet": "| **CoT-VLA** | 语言空间 | 7B | ✅ | ❌ | 语言-动作鸿沟 | | **Helix (Figure)** | 隐式端到端 | 未知 | ✅ | ❌ | 不可解释 | | **VoxPoser** | 视觉空间 | 7B | ❌ | ✅ | 3D标注依赖 | | **π₀** | Flow Matching | 3.5B | ⚠️ | ❌ | 缺乏显式推理 | **对比分析**: - **vs CoT-VLA**: ACoT避免语言→动作的转换损失，直接生成运动学一致的推理链 - **vs Helix**: ACoT提供可解释的推理过程，Helix是黑盒端到端 - **vs VoxPoser**: ACoT无需3D场景标注，更适合真实部署 --- ### 5. 实际应用问题 **优势场景**: - ✅ **长程复杂任务**: 推理链帮助分解多步骤任务 - ✅ **高精度操作**: 动作空间指导提升精细控制能力 - ✅ **双臂协作**: 显式轨迹指导帮助协调双手机构 - ✅ **快速适配**: 少量数据即可微调EAR模块 **局限性**: - ⚠️ **计算开销**: EAR+IAR增加约10%推理时间 - ⚠️ **轨迹质量依赖**: EAR生成的粗轨迹质量影响最终性能 - ⚠️ **任务适用范围**: 对简单单步任务提升有限 **部署建议**: ```python # 伪代码示例 if task_complexity > threshold and precision_required: use_acot_vla() # 启用",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1.7307187745414057,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-11T14:00:26.097Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "784572a22484",
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-11",
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "cot-vla",
+        "语言-动作鸿沟",
+        "3.5b",
+        "task-complexity",
+        "precision-required",
+        "use-acot-vla",
+        "cot",
+        "vla"
+      ]
+    },
+    "memory:memory/2026-03-21.md:42:88": {
+      "key": "memory:memory/2026-03-21.md:42:88",
+      "path": "memory/2026-03-21.md",
+      "startLine": 42,
+      "endLine": 88,
+      "source": "memory",
+      "snippet": "## 2️⃣ Inner Monologue: Embodied Reasoning (CoRL 2022) ### 核心思想 **闭环语言规划** —— 机器人执行时像人类一样\"边做边想\" > 关键洞察：环境变化必须通过感知反馈给LLM进行重规划 ### 三大反馈来源 | 反馈类型 | 来源 | 作用 | |---------|------|------| | 任务成功检测 | 成功分类器 | 判断是否完成 | | 主动视觉描述 | VLM描述 | \"苹果现在在桌子上了\" | | 被动人类纠正 | 人类输入 | \"不是那个苹果，是红色的\" | ### 关键结果 | 方法 | 厨房任务 | 桌面操作 | |-----|:--------:|:--------:| | 开环（无反馈） | 34% | 41% | | **Inner Monologue** | **71%** | **78%** | **消融实验**：成功检测(+18%) + VLM描述(+12%) + 人类纠正(+7%) ### 创新点 - ✅ 首次实现感知-语言-执行的闭环 - ✅ 支持错误检测与恢复 - ✅ 多模态反馈融合 ### 局限 - ❌ 反馈延迟较高（VLM推理3-5秒/步） - ❌ 状态描述可能不准确 --- ## 📊 两论文对比 | 维度 | SayCan | Inner Monologue | |-----|--------|-----------------| | 反馈 | ❌ 开环 | ✅ 闭环 | | 重规划 | ❌ 不支持 | ✅ 支持 | | 视觉利用 | 仅af",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0.7278989425496464,
+      "maxScore": 0.7278989425496464,
+      "firstRecalledAt": "2026-04-11T14:00:26.097Z",
+      "lastRecalledAt": "2026-04-11T14:00:26.097Z",
+      "queryHashes": [
+        "784572a22484"
+      ],
+      "recallDays": [
+        "2026-04-11"
+      ],
+      "conceptTags": [
+        "首次实现感知-语言-执行的闭环",
+        "vlm推理3-5秒/步",
+        "inner",
+        "monologue",
+        "embodied",
+        "reasoning",
+        "corl",
+        "核心"
+      ]
+    },
+    "memory:memory/2026-04-10.md:343:374": {
+      "key": "memory:memory/2026-04-10.md:343:374",
+      "path": "memory/2026-04-10.md",
+      "startLine": 343,
+      "endLine": 374,
+      "source": "memory",
+      "snippet": "│ 大模型全微调 (OpenVLA, 2024) │ │ ↓ │ │ 参数高效微调 (LoRA, QLoRA) │ │ ↓ │ │ 轻量化架构 (TinyVLA, SmolVLA, 2025) │ │ ↓ │ │ 非对称架构 (TwinBrainVLA, 2026) ← 当前热点 │ │ ↓ │ │ 动态计算 + 神经架构搜索 (未来方向) │ └─────────────────────────────────────────────────────────────┘ ``` ### 世界模型与VLA融合趋势 | 方向 | 代表工作 | 核心思想 | |------|---------|---------| | **VLA+JEPA** | VLA",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "模型",
+        "微调",
+        "openvla",
+        "参数",
+        "高效",
+        "lora",
+        "qlora",
+        "量化"
+      ]
+    },
+    "memory:memory/2026-04-06.md:127:168": {
+      "key": "memory:memory/2026-04-06.md:127:168",
+      "path": "memory/2026-04-06.md",
+      "startLine": 127,
+      "endLine": 168,
+      "source": "memory",
+      "snippet": "| UMM世界建模 | 将统一多模态模型应用于世界模型学习 | | 交错视角解码 | 解决多视角一致性问题的新机制 | | 块级分支推演 | 缓解长程误差累积的实用技术 | | 理论保证 | 提供了VLA-MBPO的理论分析 | ### 4. 与其他方法对比 | 方法 | 训练方式 | 样本效率 | 真实世界适用性 | |------|---------|---------|---------------| | 原始VLA | 行为克隆 | 高 | 高 | | VLA + 在线RL | 真实世界交互 | 低 | 风险高 | | VLA-MBPO | 世界模型中RL | 高 | 安全 | | DreamerV3 | 世界模型 | 高 | 需要适配 | ### 5. 实际应用问题 **优势：** - ✅ 避免昂贵的真实世界交互 - ✅ 样本效率高，训练成本低 - ✅ 安全性高，可在仿真中探索 - ✅ 理论保证，可靠性高 **局限性：** - ❌ 世界模型本身需要大量数据训练 - ❌ 像素级建模计算开销大 - ⚠️ 世界模型与实际环境的差异（reality gap） **应用场景：** - VLA模型的后训练优化 - 高风险任务的策略改进 - 样本受限情况下的策略提升 --- ## 🧠 核心洞察与关联 ### ACoT-VLA与VLA-MBPO的互补性 这两篇论文代表了VLA领域两个重要但不同的方向： | 维度 | ACoT-VLA | VLA-MBPO | |------|---------|---------|",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "提供了vla-mbpo的理论分析",
+        "vla-mbpo",
+        "acot-vla与vla-mbpo的互补性",
+        "acot-vla",
+        "umm",
+        "世界",
+        "统一",
+        "模型"
+      ]
+    },
+    "memory:memory/2026-03-26.md:69:98": {
+      "key": "memory:memory/2026-03-26.md:69:98",
+      "path": "memory/2026-03-26.md",
+      "startLine": 69,
+      "endLine": 98,
+      "source": "memory",
+      "snippet": "| **Week 3** | 🔄 启动 | ### 已覆盖主题 - ✅ VLA基础架构 (11篇) - ✅ 世界模型与MPC (8篇) - ✅ 灵巧手操作 (5篇) - ✅ 产业调研 (4篇) - ✅ VLA机制理解 (2篇 - 今日) --- ## 🎯 明日计划 (3月27日) 1. **Gaze-Regularized VLA** (arXiv:2603.23202) - 眼动追踪监督 + 注意力正则化 2. **Spatially-Grounded VLA** (arXiv:2603.22760) - 移动操作空间推理 + 13维动作空间 --- ## 💡 建议 基于今日学习，建议Week 3重点： 1. 复现LingBot-VA开源代码 2. 学习使用SAE分析VLA内部表示 3. 关注视觉编码器优化方向 **详细报告已保存至**: `reports/vla-day14-mechanistic-study-causal-world-model.md`",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "gaze-regularized",
+        "2603.23202",
+        "spatially-grounded",
+        "2603.22760",
+        "复现lingbot-va开源代码",
+        "week",
+        "启动",
+        "覆盖"
+      ]
+    },
+    "memory:memory/2026-04-07.md:1:45": {
+      "key": "memory:memory/2026-04-07.md:1:45",
+      "path": "memory/2026-04-07.md",
+      "startLine": 1,
+      "endLine": 45,
+      "source": "memory",
+      "snippet": "# VLA & 世界模型学习日志 - Day 20 **日期**: 2026-04-07 (周二) **学习时间**: 晚上10点 **计划**: 4周速成 - 第3周第6天 --- ## 📊 今日学习概览 今天完成了对VLA领域两篇最新核心论文的深度分析： 1. **ACoT-VLA** (AgiBot/北航, CVPR 2026) - 动作空间思维链 2. **Xiaomi-Robotics-0** (小米机器人, 2026.02) - 实时执行开源VLA --- ## 📄 论文一：ACoT-VLA - 动作空间思维链 ### 基本信息 - **论文**: ACoT-VLA: Action Chain-of-Thought for Vision-Language-Action Models - **作者**: Linqing Zhong, Yi Liu, Yifei Wei 等 (AgiBot, 北航) - **发表**: arXiv 2026.01, 录用 CVPR 2026 - **代码**: https://github.com/AgibotTech/ACoT-VLA --- ### 1. 算法实现细节 **核心思想**: 传统的VLA模型在视觉-语言空间进行推理（如生成子任务语言或目标图像），但这与动作执行存在语义-运动学鸿沟。ACoT-VLA提出直接在**动作空间**进行思维链推理。 **整体架构**: ``` 输入: 图像 I_t + 语言指令 L ↓ VLM Backbone (共享编码器) ↓",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "acot-vla",
+        "agibot/北航",
+        "xiaomi-robotics-0",
+        "2026.02",
+        "chain-of-thought",
+        "vision-language-action",
+        "2026.01",
+        "github.com/agibottech/acot-vla"
+      ]
+    },
+    "memory:memory/2026-04-10.md:33:63": {
+      "key": "memory:memory/2026-04-10.md:33:63",
+      "path": "memory/2026-04-10.md",
+      "startLine": 33,
+      "endLine": 63,
+      "source": "memory",
+      "snippet": "│ • 轻量化架构 │ • 参数高效微调 │ • 自动化数据生成 │ │ • 模型压缩 │ • 知识蒸馏 │ • 数据筛选策略 │ │ • 量化加速 │ • 预训练策略优化 │ • 合成数据利用 │ │ • 动态推理 │ • 迁移学习 │ • 课程学习 │ └─────────────────┴─────────────────┴─────────────────────────┘ ``` **关键技术分类**: | 类别 | 代表方法 | 核心思想 | |------|---------|---------| | **轻量化架构** | TinyVLA, SmolVLA | 小型backbone + LoRA微调 | | **模型压缩** | VQ-VLA | 向量量化动作token | | **动态推理** | MoLe-VLA | 动态层跳过(Mixture-of-Layers) | | **参数高效微调** | OpenVLA-LoRA | 冻结大部分参数，仅训练LoRA适配器 | ### 2. 实验结果和关键指标 **效率与性能对比**: | 模型 | 参数量 | 推理速度 | 数据效率 | 性能保留 | |------|--------|---------|---------|---------| | OpenVLA (基线) | 7B | 1x | 1x | 100% | | **TinyVLA** | **0.5B",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "vq-vla",
+        "mole-vla",
+        "mixture-of-layers",
+        "openvla-lora",
+        "0.5b",
+        "量化",
+        "架构",
+        "参数"
+      ]
+    },
+    "memory:memory/2026-04-10.md:209:254": {
+      "key": "memory:memory/2026-04-10.md:209:254",
+      "path": "memory/2026-04-10.md",
+      "startLine": 209,
+      "endLine": 254,
+      "source": "memory",
+      "snippet": "[融合模块] → 状态表示 s_t ↓ ┌───────────────────┐ ↓ ↓ [VLA策略头] [JEPA预测器] ↓ ↓ 动作 a_t 未来状态 s_{t+1} ↓ 辅助训练信号 ``` **关键组件**: 1. **VLA backbone**: 标准视觉-语言-动作模型 2. **JEPA预测器**: 预测未来状态表示 3. **世界模型损失**: L2损失约束状态预测 4. **联合训练**: 动作损失 + 预测损失 ### 2. 实验结果和关键指标 **多步规划能力**: | 任务 | VLA基线 | VLA-JEPA | 提升 | |------|---------|----------|------| | 多步抓取 | 62.3% | **78.5%** | +16.2% | | 工具使用 | 45.7% | **67.2%** | +21.5% | | 长程导航 | 38.9% | **58.4%** | +19.5% | **数据效率**: - 达到同等性能仅需**60%数据** - 世界模型",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "s-t",
+        "a-t",
+        "标准视觉-语言-动作模型",
+        "vla-jepa",
+        "62.3",
+        "78.5",
+        "16.2",
+        "45.7"
+      ]
+    },
+    "memory:memory/2026-04-06.md:156:195": {
+      "key": "memory:memory/2026-04-06.md:156:195",
+      "path": "memory/2026-04-06.md",
+      "startLine": 156,
+      "endLine": 195,
+      "source": "memory",
+      "snippet": "- 高风险任务的策略改进 - 样本受限情况下的策略提升 --- ## 🧠 核心洞察与关联 ### ACoT-VLA与VLA-MBPO的互补性 这两篇论文代表了VLA领域两个重要但不同的方向： | 维度 | ACoT-VLA | VLA-MBPO | |------|---------|---------| | **核心问题** | 如何提高VLA的推理能力 | 如何高效安全地微调VLA | | **技术路线** | 动作空间思维链 | 世界模型+强化学习 | | **创新点** | 显式+隐式动作推理 | UMM世界建模+多视角一致性 | | **适用阶段** | 预训练/推理阶段 | 后训练/微调阶段 | ### 与已有知识的关联 1. **与π₀的关系：** - π₀使用Flow Matching进行动作生成 - ACoT-VLA在动作空间进行推理，可以看作是对动作生成过程的显式建模 2. **与DreamerV3的关系：** - DreamerV3是通用的世界模型 - VLA-MBPO专门针对VLA模型设计了世界模型微调框架 3. **与CoT-VLA的关系：** - CoT-VLA在语言空间推理 - ACoT-VLA在动作空间推理，更直接但可解释性稍弱 ### 技术趋势总结 1. **推理层次化：** - 从端到端 → 语言推理 → 视觉推理 → 动作推理 - 越来越接近实际控制空间 2. **训练范式演进：** - 行为克隆 → 离线RL → 世界模型中RL",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-04-14T14:00:22.298Z",
+      "lastRecalledAt": "2026-04-14T14:00:22.298Z",
+      "queryHashes": [
+        "db33595ad315"
+      ],
+      "recallDays": [
+        "2026-04-14"
+      ],
+      "conceptTags": [
+        "acot-vla与vla-mbpo的互补性",
+        "acot-vla",
+        "vla-mbpo",
+        "预训练/推理阶段",
+        "后训练/微调阶段",
+        "acot-vla在动作空间进行推理",
+        "vla-mbpo专门针对vla模型设计了世界模型微调框架",
+        "与cot-vla的关系"
+      ]
+    }
+  }
+}

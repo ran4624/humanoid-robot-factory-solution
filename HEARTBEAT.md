@@ -1,5 +1,15 @@
-# HEARTBEAT.md
+# HEARTBEAT.md - 定期检查清单
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+## Cron 定时任务
 
-# Add tasks below when you want the agent to check something periodically.
+### 小小VLA学习-晚上汇报
+- **状态**: ✅ 由 Cron 托管 (每天 22:00)
+- **任务ID**: f454de89-d922-49e6-a8a4-13bed00f0c27
+
+### 上下文清理任务
+- **状态**: ✅ 由 Cron 托管 (每2天 08:00)
+- **任务ID**: 9741480d-38f8-40f7-8840-2197acd694d7
+
+---
+
+*其他定期检查项可在此添加*

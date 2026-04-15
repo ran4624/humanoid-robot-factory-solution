@@ -1,0 +1,83 @@
+{
+  "market_20260330": {
+    "us_stocks": [],
+    "asia_stocks": [
+      "郵便番号検索 - 日本郵便株式会社 - Japan Post",
+      "郵便番号検索-日本郵便株式会社Webｻｲﾄ - Japan Post"
+    ],
+    "china_stocks": []
+  },
+  "company_AAPL_20260330": [
+    {
+      "title": "Apple (Singapore)",
+      "url": "https://www.apple.com/sg/",
+      "snippet": "Discover the innovative world of Apple and shop everything iPhone, iPad, Apple Watch, Mac and Apple TV, plus explore …",
+      "type": "company",
+      "company": "Apple"
+    },
+    {
+      "title": "iCloud",
+      "url": "https://www.icloud.com/",
+      "snippet": "Log in to iCloud to access your photos, mail, notes, documents and more. Sign in with your Apple Account or create a new …",
+      "type": "company",
+      "company": "Apple"
+    }
+  ],
+  "company_MSFT_20260330": [],
+  "sector_摩根美国基金_20260330": [],
+  "company_7203.T_20260330": [],
+  "company_8306.T_20260330": [],
+  "sector_摩根亚洲股息基金_20260330": [
+    {
+      "title": "An Event of - asiatvforum.com",
+      "url": "https://www.asiatvforum.com/content/dam/sitebuilder/rxsg/atf/documents/ATF+2024+-+12+December+2024,+A+milestone+year+with+global+participation+at+ATF’s+25th+Anniversary.pdf.coredownload.437352037.pdf",
+      "snippet": "Singapore, 12 December 2024 – Asia TV Forum & Market (ATF), Asia’s Co-Production & Entertainment Content Market, celebrated its Silver Jubilee with a ...",
+      "type": "sector",
+      "fund": "摩根亚洲股息基金"
+    },
+    {
+      "title": "CONFERENCE & EVENTS - Asia TV Forum",
+      "url": "https://www.asiatvforum.com/en-gb/conference-and-events.html",
+      "snippet": "Get the latest insights in media & entertainment from industry thought leaders. Check out the latest programme & happenings at Asia TV Forum & Market ...",
+      "type": "sector",
+      "fund": "摩根亚洲股息基金"
+    }
+  ],
+  "company_6758.T_20260330": [],
+  "company_9984.T_20260330": [],
+  "sector_摩根太平洋证券基金_20260330": [
+    {
+      "title": "An Event of - asiatvforum.com",
+      "url": "https://www.asiatvforum.com/content/dam/sitebuilder/rxsg/atf/documents/ATF+2024+-+12+December+2024,+A+milestone+year+with+global+participation+at+ATF’s+25th+Anniversary.pdf.coredownload.437352037.pdf",
+      "snippet": "Singapore, 12 December 2024 – Asia TV Forum & Market (ATF), Asia’s Co-Production & Entertainment Content Market, celebrated its Silver Jubilee with a ...",
+      "type": "sector",
+      "fund": "摩根太平洋证券基金"
+    },
+    {
+      "title": "CONFERENCE & EVENTS - Asia TV Forum",
+      "url": "https://www.asiatvforum.com/en-gb/conference-and-events.html",
+      "snippet": "Get the latest insights in media & entertainment from industry thought leaders. Check out the latest programme & happenings at Asia TV Forum & Market ...",
+      "type": "sector",
+      "fund": "摩根太平洋证券基金"
+    }
+  ],
+  "company_600519.SS_20260330": [
+    {
+      "title": "Google",
+      "url": "https://www.google.com/",
+      "snippet": "Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly …",
+      "type": "company",
+      "company": "贵州茅台"
+    },
+    {
+      "title": "Google - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Google",
+      "snippet": "In 2015, Google was reorganized as a wholly owned subsidiary of Alphabet Inc. Google is Alphabet's largest subsidiary and is a holding …",
+      "type": "company",
+      "company": "贵州茅台"
+    }
+  ],
+  "company_300750.SZ_20260330": [],
+  "sector_摩根中证A500指数基金_20260330": [],
+  "sector_百达策略收益基金_20260330": []
+}
